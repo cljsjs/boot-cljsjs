@@ -1,4 +1,4 @@
-(ns boot-cljsjs.core
+(ns cljsjs.tasks
   (:require [boot.core          :as  c]
             [boot.task.built-in :as task]
             [clojure.java.io    :as io]))

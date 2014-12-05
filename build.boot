@@ -5,11 +5,11 @@
                   [tailrecursion/boot-useful "0.1.3"       :scope "test"]])
 
 (require ;'[tailrecursion.boot-useful :refer :all]
- '[boot.core       :as  c]
- '[boot.util       :as  util]
- '[boot.git        :refer [last-commit]]
- '[boot.task.built-in :as task]
- '[clojure.java.io :as io])
+ '[boot.core           :as  c]
+ '[boot.util           :as  util]
+ '[boot.git            :refer [last-commit]]
+ '[boot.task.built-in  :as task]
+ '[clojure.java.io     :as io])
 
 (def +version+ "0.1.0")
 
@@ -29,6 +29,8 @@
                        :ensure-version version
                        :ensure-tag     (last-commit)]))
 
+(useful! +version+)
+
 (deftask add-src []
   (with-pre-wrap fileset
     (-> (reduce
@@ -41,8 +43,6 @@
   "Build jar and install to local repo."
   []
   (comp (pom) (add-src) (jar) (install)))
-
-(useful! +version+)
 
 (task-options!
   pom  [:project     'cljsjs/boot-cljsjs
