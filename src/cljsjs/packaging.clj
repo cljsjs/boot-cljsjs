@@ -1,4 +1,4 @@
-(ns cljsjs.tasks
+(ns cljsjs.packaging
   (:require [boot.core          :as  c]
             [boot.task.built-in :as task]
             [clojure.java.io    :as io]))
@@ -19,9 +19,12 @@
     (catch Exception e
       (println (str "File " name " was not found in input files")))))
 
+(def prefix "hoplon/include/")
+
 (defn- copy-file [project name type fs tmp-dir]
   (let [file   (input-file name fs)
-        target (str project "/" (rename (.getName file) type))]
+        ; FIXME only use name not cljsjs/react so people can deploy packages under different groups
+        target (str project (rename (.getName file) type))]
     (println (str "Copying " (.getName file) " to " target))
     (doto (io/file tmp-dir target)
       io/make-parents
@@ -36,21 +39,18 @@
    e ext-js EXT [str] "Files that should be included with the .ext.js extension"
    l lib-js LIB [str] "Files that should be included with the .lib.js extension"]
   (let [tmp (c/temp-dir!)
-        c   (or classifier "none")
-        v   (str version (if c (str "-" c)))]
+        v   (str version (if classifier (str "-" classifier)))]
     (comp
-     (fn middleware [next-handler]
-       (fn handler [fileset]
-         (doseq [include inc-js]
-           (copy-file project include :inc fileset tmp))
-         (doseq [extern ext-js]
-           (copy-file project extern :ext fileset tmp))
-         (doseq [library lib-js]
-           (copy-file project library :lib fileset tmp))
-         (-> fileset
-             (c/add-resource tmp)
-             c/commit!
-             next-handler)))
+     (c/with-pre-wrap fileset
+       (doseq [include inc-js]
+         (copy-file project include :inc fileset tmp))
+       (doseq [extern ext-js]
+         (copy-file project extern :ext fileset tmp))
+       (doseq [library lib-js]
+         (copy-file project library :lib fileset tmp))
+       (-> fileset
+           (c/add-resource tmp)
+           c/commit!))
      (task/pom :project project
                :version v)
      (task/jar))))
