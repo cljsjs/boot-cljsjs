@@ -21,10 +21,9 @@
 
 (def prefix "hoplon/include/")
 
-(defn- copy-file [project name type fs tmp-dir]
-  (let [file   (input-file name fs)
-        ; FIXME only use name not cljsjs/react so people can deploy packages under different groups
-        target (str project "/" (rename (.getName file) type))]
+(defn- copy-file [project fname type fs tmp-dir]
+  (let [file   (input-file fname fs)
+        target (str "cljsjs/" (name project) "/" (rename (.getName file) type))]
     (println (str "Copying " (.getName file) " to " target))
     (doto (io/file tmp-dir target)
       io/make-parents
