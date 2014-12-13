@@ -1,2 +1,4 @@
 .boot
 target
+.nrepl-history
+gpg.edn
