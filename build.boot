@@ -23,11 +23,11 @@
                        :username (System/getenv "CLOJARS_USER")
                        :password (System/getenv "CLOJARS_PASS")}]))
 
-  (task-options! push [:repo           "deploy-clojars"
+  (task-options! push {:repo           "deploy-clojars"
                        :ensure-branch  "master"
                        :ensure-clean   true
                        :ensure-version version
-                       :ensure-tag     (last-commit)]))
+                       :ensure-tag     (last-commit)}))
 
 (useful! +version+)
 
@@ -45,10 +45,10 @@
   (comp (pom) (add-src) (jar) (install)))
 
 (task-options!
-  pom  [:project     'cljsjs/boot-cljsjs
+  pom  {:project     'cljsjs/boot-cljsjs
         :version     +version+
         :description "React.js packaged up with Google Closure externs"
         :url         "https://github.com/cljsjs/boot-cljsjs"
         :scm         {:url "https://github.com/cljsjs/boot-cljsjs"}
         :license     {:name "Eclipse Public License"
-                      :url  "http://www.eclipse.org/legal/epl-v10.html"}])
+                      :url  "http://www.eclipse.org/legal/epl-v10.html"}})
