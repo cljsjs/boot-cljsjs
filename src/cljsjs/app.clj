@@ -1,6 +1,7 @@
 (ns cljsjs.app
   (:require [boot.core          :as  c]
             [boot.pod           :as pod]
+            [boot.util          :as util]
             [boot.file          :as file]
             [boot.task.built-in :as task]
             [clojure.java.io    :as io]
@@ -42,42 +43,32 @@
     (in-dep-order env)
     (mapcat #(files-in-jar % marker file-exts))))
 
-(defn- cljs-dep-files
-  [env]
-  (let [marker "cljsjs/"
-        exts   [".inc.js" ".lib.js" ".ext.js"]]
-    (dep-files env marker exts)))
+(defn cljs-dep-files
+  [env exts]
+  (let [marker "cljsjs/"]
+    (map first (dep-files env marker exts))))
 
 (c/deftask js-import
   "Seach jars specified as dependencies for files matching
    the following patterns and add them to the fileset:
-    - cljsjs/*.inc.js
-    - cljsjs/*.ext.js
-    - cljsjs/*.lib.js"
-  []
+    - cljsjs/**/*.inc.js
+    - cljsjs/**/*.ext.js
+    - cljsjs/**/*.lib.js"
+  [c combined-preamble str "Concat all .inc.js file into file at this destination"]
   (c/with-pre-wrap fileset
-    (let [from-jars (->> (c/get-env ) cljs-dep-files (map first))
-          in-files  (c/input-files fileset)
-          tmp       (c/temp-dir!)]
-      (doseq [f from-jars]
-        (println "Adding" f "to fileset")
+    (let [inc  (-> (c/get-env) (cljs-dep-files [".inc.js"]))
+          ext  (-> (c/get-env) (cljs-dep-files [".ext.js"]))
+          lib  (-> (c/get-env) (cljs-dep-files [".lib.js"]))
+          tmp  (c/temp-dir!)
+          read #(slurp (io/resource %))]
+      (when combined-preamble
+        (let [comb (io/file tmp combined-preamble)]
+          (io/make-parents comb)
+          (util/info (str "Adding combined .inc.js files as " combined-preamble "\n"))
+          (spit comb (string/join "\n" (map read inc)))))
+      (doseq [f (if combined-preamble
+                  (concat ext lib)
+                  (concat inc ext lib))]
+        (util/info (str "Adding " f " to fileset\n"))
         (pod/copy-resource f (io/file tmp f)))
-      (-> fileset
-         (c/add-resource tmp)
-          c/commit!))))
-
-(c/deftask preamble
-  "Seach fileset for .inc.js files and concat to file at :output-to"
-  [o output-to PATH str "Path where combined inc.js files should be saved"]
-  (c/with-pre-wrap fileset
-    (let [inc-js (c/by-ext [".inc.js"] (c/input-files fileset))
-          tmp    (c/temp-dir!)
-          out    (io/file tmp output-to)
-          read   #(slurp (c/tmpfile %))]
-      (io/make-parents out)
-      (spit
-       out
-       (string/join "\n" (map read inc-js)))
-      (-> fileset
-         (c/add-resource tmp)
-          c/commit!))))
+      (-> fileset (c/add-resource tmp) c/commit!))))
