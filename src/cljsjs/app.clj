@@ -74,7 +74,7 @@
       (when combined-preamble
         (let [comb (io/file tmp combined-preamble)]
           (io/make-parents comb)
-          (util/info (str "Adding combined .inc.js files as %s\n" combined-preamble))
+          (util/info "Adding combined .inc.js files as %s\n" combined-preamble)
           (spit comb (string/join "\n" (map read inc)))))
       (doseq [f (if combined-preamble
                   (concat ext lib)
