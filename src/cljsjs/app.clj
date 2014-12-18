@@ -37,17 +37,13 @@
                               (or (empty? file-exts)
                                 (some #(.endsWith p %) file-exts)))))))))
 
-(defn- dep-files
-  [env marker & [file-exts]]
-  (->> marker
-    (dep-jars-on-cp env)
-    (in-dep-order env)
-    (mapcat #(files-in-jar % marker file-exts))))
-
 (defn cljs-dep-files
   [env exts]
-  (let [marker "cljsjs/"]
-    (mapv first (dep-files env marker exts))))
+  (->> "cljsjs/"
+       (cljsjs.app/dep-jars-on-cp env)
+       (in-dep-order env)
+       (mapcat #(cljsjs.app/files-in-jar % "cljsjs/" exts))
+       (map first)))
 
 (c/deftask js-import
   "Seach jars specified as dependencies for files matching
@@ -57,9 +53,10 @@
     - cljsjs/**/*.lib.js"
   [c combined-preamble PREAMBLE str "Concat all .inc.js file into file at this destination"]
   (c/with-pre-wrap fileset
-    (let [inc  (-> (c/get-env) (cljs-dep-files [".inc.js"]))
-          ext  (-> (c/get-env) (cljs-dep-files [".ext.js"]))
-          lib  (-> (c/get-env) (cljs-dep-files [".lib.js"]))
+    (let [env  (c/get-env)
+          inc  (-> env (cljs-dep-files [".inc.js"]))
+          ext  (-> env (cljs-dep-files [".ext.js"]))
+          lib  (-> env (cljs-dep-files [".lib.js"]))
           tmp  (c/temp-dir!)
           read #(slurp (io/resource %))]
 
