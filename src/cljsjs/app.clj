@@ -54,7 +54,7 @@
     - cljsjs/**/*.inc.js
     - cljsjs/**/*.ext.js
     - cljsjs/**/*.lib.js"
-  [c combined-preamble str "Concat all .inc.js file into file at this destination"]
+  [c combined-preamble PREAMBLE str "Concat all .inc.js file into file at this destination"]
   (c/with-pre-wrap fileset
     (let [inc  (-> (c/get-env) (cljs-dep-files [".inc.js"]))
           ext  (-> (c/get-env) (cljs-dep-files [".ext.js"]))

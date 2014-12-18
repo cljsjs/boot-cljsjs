@@ -12,7 +12,7 @@
  '[adzerk.bootlaces    :refer :all]
  '[clojure.java.io     :as io])
 
-(def +version+ "0.2.1")
+(def +version+ "0.2.2")
 
 (bootlaces! +version+)
 
