@@ -65,6 +65,11 @@
 
       ; (require  'cljsjs.app :reload)
       ; (map first (->> "cljsjs/" (cljsjs.app/dep-jars-on-cp env) (mapcat #(cljsjs.app/files-in-jar % "cljsjs/" [".inc.js"]))))
+      ; => ("cljsjs/react/react-0.11.2.inc.js")
+      ; (boot (js-import :combined-preamble "core.js"))
+      ; => Found 0 .inc.js files
+      ; => Adding combined .inc.js files as core.js
+      ; WHY?
       (util/info "Found %s .inc.js files\n" (count inc))
       (when combined-preamble
         (let [comb (io/file tmp combined-preamble)]
