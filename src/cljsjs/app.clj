@@ -1,5 +1,6 @@
 (ns cljsjs.app
-  (:require [boot.core          :as  c]
+  {:boot/export-tasks true}
+  (:require [boot.core          :as c]
             [boot.pod           :as pod]
             [boot.util          :as util]
             [boot.file          :as file]
@@ -46,7 +47,7 @@
 (defn cljs-dep-files
   [env exts]
   (let [marker "cljsjs/"]
-    (map first (dep-files env marker exts))))
+    (mapv first (dep-files env marker exts))))
 
 (c/deftask js-import
   "Seach jars specified as dependencies for files matching
@@ -61,10 +62,14 @@
           lib  (-> (c/get-env) (cljs-dep-files [".lib.js"]))
           tmp  (c/temp-dir!)
           read #(slurp (io/resource %))]
+
+      ; (require  'cljsjs.app :reload)
+      ; (map first (->> "cljsjs/" (cljsjs.app/dep-jars-on-cp env) (mapcat #(cljsjs.app/files-in-jar % "cljsjs/" [".inc.js"]))))
+      (util/info "Found %s .inc.js files\n" (count inc))
       (when combined-preamble
         (let [comb (io/file tmp combined-preamble)]
           (io/make-parents comb)
-          (util/info (str "Adding combined .inc.js files as " combined-preamble "\n"))
+          (util/info (str "Adding combined .inc.js files as %s\n" combined-preamble))
           (spit comb (string/join "\n" (map read inc)))))
       (doseq [f (if combined-preamble
                   (concat ext lib)
