@@ -20,7 +20,8 @@
 (task-options!
   pom  {:project     'cljsjs/boot-cljsjs
         :version     +version+
-        :description "React.js packaged up with Google Closure externs"
+        :description "Tooling to package and deploy Javascript
+                      libraries for Clojurescript projects"
         :url         "https://github.com/cljsjs/boot-cljsjs"
         :scm         {:url "https://github.com/cljsjs/boot-cljsjs"}
         :license     {:name "Eclipse Public License"
