@@ -1,28 +1,25 @@
 # boot-cljsjs
 
-Boot tasks to aid the creation of jars containing Javascript dependencies
-in Clojurescript projects.
+This project provides tasks for the [boot][boot] build system to package and
+use Javascript dependencies in Clojurescript projects:
 
-The main task is `cljsjs-jar` which creates a jar containing the specified
-files and makes sure they conform to what's expected by [boot-cljs][boot-cljs].
+- `cljsjs-jar` in [`cljsjs.packaging`][cljsjs-packaging] helps to create jars that adhere to some conventions set by [boot-cljs][boot-cljs]
+- `js-import` in [`cljsjs.app`][cljsjs-app] bundles files from jars created with the `cljsjs-jar` task to a single preamble file.
 
-## Example
+## Usage Example
 
-    (require '[boot.core          :as  c]
-             '[cljsjs.tasks       :as js])
+A complete example for the `cljsjs-jar` task can be found in [cljsjs/react][cljsjs-react]'s `build.boot` file.
 
-    (js/cljsjs :project 'cljsjs/react
-               :version "0.11.2"
-               :inc-js ["react-0.11.2.js"]
-               :ext-js ["react-externs.js"])
+When you want to use one of the created jars there are tasks to help with that in your project:
 
-    (js/cljsjs :project 'cljsjs/react
-               :version "0.11.2"
-               :classifier :min
-               :inc-js ["react-0.11.2.min.js"]
-               :ext-js ["react-externs.js"])
+An example:
 
-A more complete example can be found in [cljsjs/react][cljsjs-react].
+```
+FIXME/WIP
+```
 
+[boot]: https://github.com/boot-clj/boot
+[cljsjs-packaging]: https://github.com/cljsjs/boot-cljsjs/blob/master/src/cljsjs/packaging.clj
+[cljsjs-app]: https://github.com/cljsjs/boot-cljsjs/blob/master/src/cljsjs/app.clj
 [boot-cljs]: https://github.com/adzerk/boot-cljs
-[cljsjs-react]: https://github.com/cljsjs/react
+[cljsjs-react]: https://github.com/cljsjs/packages/tree/master/react
