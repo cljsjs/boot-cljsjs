@@ -41,9 +41,13 @@
   [env exts]
   (->> "cljsjs/"
        (cljsjs.app/dep-jars-on-cp env)
-       (in-dep-order env)
+       ;(in-dep-order env)
        (mapcat #(cljsjs.app/files-in-jar % "cljsjs/" exts))
        (map first)))
+  ;; (->> "cljsjs/"
+  ;;      (cljsjs.app/dep-jars-on-cp env)
+  ;;      ;(in-dep-order env)
+  ;;      (mapcat #(cljsjs.app/files-in-jar % "cljsjs/" exts)))
 
 (c/deftask js-import
   "Seach jars specified as dependencies for files matching
