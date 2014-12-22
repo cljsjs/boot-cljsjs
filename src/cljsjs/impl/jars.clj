@@ -32,14 +32,11 @@
                                 (some #(.endsWith p %) file-exts)))))))))
 
 (defn cljs-dep-files
-  [env exts]
-  (->> "cljsjs/"
-       (dep-jars-on-cp env)
-       ;(in-dep-order env)
-       (mapcat #(files-in-jar % "cljsjs/" exts))
-       (map first)))
-  ;; (->> "cljsjs/"
-  ;;      (cljsjs.app/dep-jars-on-cp env)
-  ;;      ;(in-dep-order env)
-  ;;      (mapcat #(cljsjs.app/files-in-jar % "cljsjs/" exts)))
-
+  [env markers exts]
+  (letfn [(files [marker] (->> marker
+                               (dep-jars-on-cp env)
+                               ; FIXME this breaks stuff currently
+                               ;(in-dep-order env)
+                               (mapcat #(files-in-jar % marker exts))
+                               (map first)))]
+    (apply concat (map files markers))))
