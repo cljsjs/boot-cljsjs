@@ -3,72 +3,12 @@
   (:require [boot.core          :as c]
             [boot.pod           :as pod]
             [boot.util          :as util]
-            [boot.file          :as file]
-            [boot.task.built-in :as task]
             [clojure.java.io    :as io]
-            [clojure.string     :as string])
-  (:import [java.net URL URI]
-           [java.util UUID]))
+            [clojure.string     :as string]
+            [cljsjs.impl.jars   :as jars]))
 
 (defn- get-classpath []
   (System/getProperty "java.class.path"))
-
-(defn- jarfile-for
-  [url]
-  (-> url .getPath (.replaceAll "![^!]+$" "") URL. .toURI io/file))
-
-(def dep-jars-on-cp
-  (memoize
-    (fn [env marker]
-      (->> marker
-        pod/resources
-        (filter #(= "jar" (.getProtocol %)))
-        (map jarfile-for)))))
-
-(defn- in-dep-order
-  [env jars]
-  (let [jars-set (set jars)]
-    (->> (pod/jars-in-dep-order env)
-      (filter (partial contains? jars-set)))))
-
-(def files-in-jar
-  (memoize
-    (fn [jarfile marker & [file-exts]]
-      (->> jarfile
-        pod/jar-entries
-        (filter (fn [[p u]] (and (.startsWith p marker)
-                              (or (empty? file-exts)
-                                (some #(.endsWith p %) file-exts)))))))))
-
-(defn cljs-dep-files
-  [env exts]
-  (->> "cljsjs/"
-       (cljsjs.app/dep-jars-on-cp env)
-       ;(in-dep-order env)
-       (mapcat #(cljsjs.app/files-in-jar % "cljsjs/" exts))
-       (map first)))
-  ;; (->> "cljsjs/"
-  ;;      (cljsjs.app/dep-jars-on-cp env)
-  ;;      ;(in-dep-order env)
-  ;;      (mapcat #(cljsjs.app/files-in-jar % "cljsjs/" exts)))
-
-(c/deftask from-cljsjs
-  "Seach jars specified as dependencies for files matching
-   the following patterns and add them to the fileset:
-    - cljsjs/**/*.inc.js
-    - cljsjs/**/*.ext.js
-    - cljsjs/**/*.lib.js"
-  []
-  (c/with-pre-wrap fileset
-    (let [env  (c/get-env)
-          inc  (-> env (cljs-dep-files [".inc.js"]))
-          ext  (-> env (cljs-dep-files [".ext.js"]))
-          lib  (-> env (cljs-dep-files [".lib.js"]))
-          tmp  (c/temp-dir!)]
-      (doseq [f (concat inc ext lib)]
-        (util/info (str "Adding " f " to fileset\n"))
-        (pod/copy-resource f (io/file tmp f)))
-      (-> fileset (c/add-resource tmp) c/commit!))))
 
 (defn- not-found [path]
   (throw (Throwable. (str "File " path " not found!"))))
@@ -76,8 +16,28 @@
 (defn- copy-file [tmp path target]
   (let [f (io/resource path)]
     (if f
-      (pod/copy-url f (io/file tmp target))
+      (do
+        (util/info (str "Adding " path " to fileset\n"))
+        (pod/copy-url f (io/file tmp target)))
       (not-found path))))
+
+(c/deftask from-cljsjs
+  "Seach jars specified as dependencies for files matching
+   the following patterns and add them to the fileset:
+   - cljsjs/**/*.inc.js
+   - cljsjs/**/*.ext.js
+   - cljsjs/**/*.lib.js"
+  []
+  (let [tmp (c/temp-dir!)
+        classpath (atom nil)]
+    (c/with-pre-wrap
+      fileset
+      (when-not (= @classpath (get-classpath))
+        (reset! classpath (get-classpath))
+        (let [env  (c/get-env)]
+          (doseq [f (jars/cljs-dep-files (c/get-env) [".inc.js" ".ext.js" ".lib.js"])]
+            (copy-file tmp f f))))
+      (-> fileset (c/add-resource tmp) c/commit!))))
 
 (c/deftask from-jars
   "Add non-boot ready js files to the fileset"
@@ -108,7 +68,8 @@
     (c/with-pre-wrap fileset
       (when-not (= @classpath (get-classpath))
         (reset! classpath (get-classpath))
-        (copy-file tmp (or (get assets name) (not-found name)) target))
+        (let [f (or (get assets name) (not-found name))]
+          (copy-file tmp f target)))
       (-> fileset ((if package c/add-source c/add-resource) tmp) c/commit!))))
 
 (c/deftask js-import
