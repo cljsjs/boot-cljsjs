@@ -4,7 +4,6 @@
             [boot.pod           :as pod]
             [boot.util          :as util]
             [clojure.java.io    :as io]
-            [clojure.string     :as string]
             [cljsjs.impl.jars   :as jars]))
 
 (defn- get-classpath []
@@ -78,13 +77,13 @@
   (comp
    (from-cljsjs)
    (c/with-pre-wrap fileset
-     (let [inc  (c/by-ext [".inc.js"] (c/input-files fileset))
-           tmp  (c/temp-dir!)
-           read #(slurp (c/tmpfile %))]
-       (util/info "Found %s .inc.js files\n" (count inc))
+     (let [inc-files  (c/by-ext [".inc.js"] (c/input-files fileset))
+           tmp  (c/temp-dir!)]
+       (util/info "Found %s .inc.js files\n" (count inc-files))
        (let [path (or combined-preamble "preamble.js")
              comb (io/file tmp path)]
-         (io/make-parents comb)
          (util/info "Adding combined .inc.js files as %s\n" path)
-         (spit comb (string/join "\n" (map read inc))))
+         (io/make-parents comb)
+         (doseq [f inc-files]
+           (spit comb (slurp (c/tmpfile f)) :append true)))
        (-> fileset (c/add-resource tmp) c/commit!)))))
