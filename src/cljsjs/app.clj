@@ -70,11 +70,14 @@
         (pod/copy-resource f (io/file tmp f)))
       (-> fileset (c/add-resource tmp) c/commit!))))
 
+(defn- not-found [path]
+  (throw (Throwable. (str "File " path " not found!"))))
+
 (defn- copy-file [tmp path target]
   (let [f (io/resource path)]
     (if f
       (pod/copy-url f (io/file tmp target))
-      (throw (str "File " path " not found!")))))
+      (not-found path))))
 
 (c/deftask from-jars
   "Add non-boot ready js files to the fileset"
@@ -105,7 +108,7 @@
     (c/with-pre-wrap fileset
       (when-not (= @classpath (get-classpath))
         (reset! classpath (get-classpath))
-        (copy-file tmp (get assets name) target))
+        (copy-file tmp (or (get assets name) (not-found name)) target))
       (-> fileset ((if package c/add-source c/add-resource) tmp) c/commit!))))
 
 (c/deftask js-import
