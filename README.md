@@ -64,7 +64,7 @@ NOTE: This a bad example because react is added to fileset twice.
   identity)
 
 (deftask prod-deps []
-  (set-env! :dependencies #(conj % '[cljsjs/react-min "0.12.1"]))
+  (set-env! :dependencies #(conj % '[cljsjs/react "0.12.1-min"]))
   identity)
 
 (deftask dev []
