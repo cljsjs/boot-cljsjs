@@ -49,6 +49,8 @@ so the files are accessible through your webserver.
 
 ### Example
 
+NOTE: This a bad example because react is added to fileset twice.
+
 ```clj
 (set-env! :dependencies '[[cljsjs/react "0.12.1"]
                           [org.webjars/momentjs "2.8.3"]
@@ -72,7 +74,8 @@ so the files are accessible through your webserver.
   (comp
     (from-cljsjs :target "public")
     (from-jars :package true :path "react/min/react.min.js" :target "public/react.inc.js")
-    (from-jars :package true :path "react/externs/react.js" :target "public/react.ext.js")))
+    (from-jars :package true :path "react/externs/react.js" :target "public/react.ext.js")
+    (from-webjars :name "momentjs/min/moment.min.js" :target "public/moment.inc.js")))
 ```
 
 ## Packaking jars
