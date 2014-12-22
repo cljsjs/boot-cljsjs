@@ -52,8 +52,7 @@ so the files are accessible through your webserver.
 NOTE: This a bad example because react is added to fileset twice.
 
 ```clj
-(set-env! :dependencies '[[cljsjs/react "0.12.1"]
-                          [org.webjars/momentjs "2.8.3"]
+(set-env! :dependencies '[[org.webjars/momentjs "2.8.3"]
                           [com.facebook/react "0.12.2"]
 
                           [cljsjs/boot-cljsjs "0.3.0-SNAPSHOT"]])
@@ -68,8 +67,7 @@ NOTE: This a bad example because react is added to fileset twice.
   (set-env! :dependencies #(conj % '[cljsjs/react-min "0.12.1"]))
   identity)
 
-(deftask dev
-  []
+(deftask dev []
   (comp
     (dev-deps)
     (from-cljsjs :target "public")
@@ -77,8 +75,7 @@ NOTE: This a bad example because react is added to fileset twice.
     (from-webjars :name "momentjs/moment.js" :target "public/moment.inc.js")
     (watch)))
 
-(deftask package
-  []
+(deftask package []
   (comp
     (prod-deps)
     (from-cljsjs :target "public")
