@@ -10,8 +10,7 @@
  '[boot.git            :refer [last-commit]]
  '[boot.task.built-in  :as task]
  '[adzerk.bootlaces    :refer :all]
- '[clojure.java.io     :as io]
- '[cljsjs.app :refer [js-import]])
+ '[clojure.java.io     :as io])
 
 (def +version+ "0.2.3-SNAPSHOT")
 
