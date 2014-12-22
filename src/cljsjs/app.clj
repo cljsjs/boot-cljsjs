@@ -10,6 +10,9 @@
   (:import [java.net URL URI]
            [java.util UUID]))
 
+(defn- get-classpath []
+  (System/getProperty "java.class.path"))
+
 (defn- jarfile-for
   [url]
   (-> url .getPath (.replaceAll "![^!]+$" "") URL. .toURI io/file))
@@ -79,10 +82,11 @@
    t target TARGET str "Target path"
    x package bool "Don't include files in result"]
   (let [tmp (c/temp-dir!)
-        state (atom nil)]
-    (c/with-pre-wrap
-      fileset
-      (when-not @state (copy-file tmp path target))
+        classpath (atom nil)]
+    (c/with-pre-wrap fileset
+      (when-not (= @classpath (get-classpath))
+        (reset! classpath (get-classpath))
+        (copy-file tmp path target))
       (-> fileset ((if package c/add-source c/add-resource) tmp) c/commit!))))
 
 (def ^:private webjar-deps '[[org.webjars/webjars-locator "0.19"]
@@ -96,11 +100,11 @@
    t target TARGET str "Target path"
    x package bool "Don't include files in result"]
   (let [tmp (c/temp-dir!)
-        state (atom nil)
+        classpath (atom nil)
         assets (pod/with-call-in @webjar-pod (cljsjs.impl.webjars/asset-map))]
-    (c/with-pre-wrap
-      fileset
-      (when-not @state
+    (c/with-pre-wrap fileset
+      (when-not (= @classpath (get-classpath))
+        (reset! classpath (get-classpath))
         (copy-file tmp (get assets name) target))
       (-> fileset ((if package c/add-source c/add-resource) tmp) c/commit!))))
 
