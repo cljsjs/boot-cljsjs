@@ -84,6 +84,7 @@
              comb (io/file tmp path)]
          (util/info "Adding combined .inc.js files as %s\n" path)
          (io/make-parents comb)
+         (spit comb "")
          (doseq [f inc-files]
            (spit comb (slurp (c/tmpfile f)) :append true)))
        (-> fileset (c/add-resource tmp) c/commit!)))))
