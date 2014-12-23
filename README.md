@@ -68,22 +68,14 @@ NOTE: This a bad example because React is added to fileset twice.
 ```clj
 (set-env! :dependencies '[[org.webjars/momentjs "2.8.3"]
                           [com.facebook/react "0.12.2"]
+                          [cljsjs/react "0.12.1"]
 
                           [cljsjs/boot-cljsjs "0.3.0-SNAPSHOT"]])
 
 (require '[cljsjs.app :refer :all])
 
-(deftask dev-deps []
-  (set-env! :dependencies #(conj % '[cljsjs/react "0.12.1"]'))
-  identity)
-
-(deftask prod-deps []
-  (set-env! :dependencies #(conj % '[cljsjs/react "0.12.1-min"]))
-  identity)
-
 (deftask dev []
   (comp
-    (dev-deps)
     (from-cljsjs :target "public")
     (from-jars :path "react/react.js" :target "public/react.inc.js")
     (from-webjars :name "momentjs/moment.js" :target "public/moment.inc.js")
@@ -91,8 +83,7 @@ NOTE: This a bad example because React is added to fileset twice.
 
 (deftask package []
   (comp
-    (prod-deps)
-    (from-cljsjs :target "public")
+    (from-cljsjs :target "public" :profile :production)
     (from-jars :package true :path "react/min/react.min.js" :target "public/react.inc.js")
     (from-jars :package true :path "react/externs/react.js" :target "public/react.ext.js")
     (from-webjars :package true :name "momentjs/min/moment.min.js" :target "public/moment.inc.js")))
