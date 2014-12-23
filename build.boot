@@ -1,16 +1,8 @@
 (set-env!
   :source-paths #{"src"}
-  :dependencies '[[org.clojure/clojure       "1.6.0"       :scope "provided"]
-                  [boot/core                 "2.0.0-pre28" :scope "provided"]
-                  [adzerk/bootlaces          "0.1.5"       :scope "test"]])
+  :dependencies '[[adzerk/bootlaces "0.1.8" :scope "test"]])
 
-(require
- '[boot.core           :as  c]
- '[boot.util           :as  util]
- '[boot.git            :refer [last-commit]]
- '[boot.task.built-in  :as task]
- '[adzerk.bootlaces    :refer :all]
- '[clojure.java.io     :as io])
+(require '[adzerk.bootlaces :refer :all])
 
 (def +version+ "0.3.0-SNAPSHOT")
 

@@ -22,27 +22,26 @@
 
 (c/deftask from-cljsjs
   "Seach jars specified as dependencies for files matching
-   the following patterns and add them to the fileset:
-   - cljsjs/**/*.inc.js
-   - cljsjs/**/*.ext.js
-   - cljsjs/**/*.lib.js"
-  []
-  (let [tmp (c/temp-dir!)
-        classpath (atom nil)]
-    (c/with-pre-wrap
-      fileset
+   the following patterns and add them to the fileset:"
+  [p profile ENV kw "Load production or development files"]
+  (let [classpath (atom nil)
+        tmp       (c/temp-dir!)
+        profile   (or profile :development)]
+    (c/with-pre-wrap fileset
       (when-not (= @classpath (get-classpath))
         (reset! classpath (get-classpath))
-        (let [env  (c/get-env)]
-          (doseq [f (jars/cljs-dep-files (c/get-env) [".inc.js" ".ext.js" ".lib.js"])]
+        (let [env     (c/get-env)
+              exts    [".inc.js" ".ext.js" ".lib.js"]
+              markers ["cljsjs/common/" (str "cljsjs/" (name profile) "/")]]
+          (doseq [f (jars/cljs-dep-files env markers exts)]
             (copy-file tmp f f))))
       (-> fileset (c/add-resource tmp) c/commit!))))
 
 (c/deftask from-jars
   "Add non-boot ready js files to the fileset"
-  [p path PATH str "The path of file in classpath"
-   t target TARGET str "Target path"
-   x package bool "Don't include files in result"]
+  [p path PATH     str  "The path of file in classpath"
+   t target TARGET str  "Target path"
+   x package       bool "Don't include files in result"]
   (let [tmp (c/temp-dir!)
         classpath (atom nil)]
     (c/with-pre-wrap fileset
