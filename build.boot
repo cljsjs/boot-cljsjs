@@ -1,6 +1,6 @@
 (set-env!
   :source-paths #{"src"}
-  :dependencies '[[adzerk/bootlaces          "0.1.8"       :scope "test"]])
+  :dependencies '[[adzerk/bootlaces "0.1.8" :scope "test"]])
 
 (require '[adzerk.bootlaces :refer :all])
 
