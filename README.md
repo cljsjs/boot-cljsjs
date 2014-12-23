@@ -3,6 +3,8 @@
 <img src="https://dl.dropboxusercontent.com/u/453692/cljsjs-logo.png"
   alt="CLJSJS logo" align="right" />
 
+[![Clojars Project](http://clojars.org/cljsjs/boot-cljsjs/latest-version.svg)](http://clojars.org/cljsjs/boot-cljsjs)
+
 This project provides tasks for the [boot][boot] build system to
 package and use Javascript dependencies in Clojurescript projects.
 
