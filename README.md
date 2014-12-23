@@ -20,6 +20,7 @@ Using boot-cljsjs you can use JS libraries from three sources in your
 project.
 
 1. Cljsjs packaged jars
+  - When using Cljsjs jars the transitive dependencies are added automatically to fileset
 2. Webjars
 3. Any jar-files containing js-files
 
@@ -60,6 +61,14 @@ external libraries.
 
 NOTE: In development mode the target file should by inside your
 docroot so the files are accessible through your webserver.
+
+### Transitive dependencies
+
+Using Cljsjs jars transitive dependencies can automatically be added to fileset and thus to cljs build.
+For example if your application depends on a Cljs library which depends on `cljsjs/momentjs` the only code you
+need to add to your project is call to call `from-cljsjs` task. Because we are using Maven dependencies if you need, you can depend on `cljsjs/momentjs` from your own project if you e.g. need to use a new version.
+
+Cljsjs jars include both development (non-minified) and production (minified) versions and you can select one being used by `from-cljsjs` `:profile` option.
 
 ### Example
 
