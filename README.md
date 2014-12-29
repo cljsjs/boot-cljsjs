@@ -104,6 +104,12 @@ NOTE: This a bad example because React is added to fileset twice.
 
 Instructions on how to package CLJSJS jars can be found in the [packages project][cljsjs-packages].
 
+# License
+
+Copyright © 2014 Martin Klepsch and Juho Teperi
+
+Distributed under the Eclipse Public License, the same as Clojure.
+
 [boot]: https://github.com/boot-clj/boot
 [cljsjs-packages]: https://github.com/cljsjs/packages
 [cljsjs-packaging]: https://github.com/cljsjs/boot-cljsjs/blob/master/src/cljsjs/packaging.clj
