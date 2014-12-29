@@ -23,7 +23,8 @@
 (c/deftask from-cljsjs
   "Seach jars specified as dependencies for files matching
    the following patterns and add them to the fileset:"
-  [p profile ENV kw "Load production or development files"]
+  [p profile ENV kw "Load production or development files"
+   x package     bool "Don't include files in result"]
   (let [classpath (atom nil)
         tmp       (c/temp-dir!)
         profile   (or profile :development)]
@@ -35,7 +36,7 @@
               markers ["cljsjs/common/" (str "cljsjs/" (name profile) "/")]]
           (doseq [f (jars/cljs-dep-files env markers exts)]
             (copy-file tmp f f))))
-      (-> fileset (c/add-resource tmp) c/commit!))))
+      (-> fileset ((if package c/add-source c/add-resource) tmp) c/commit!))))
 
 (c/deftask from-jars
   "Add non-boot ready js files to the fileset"
