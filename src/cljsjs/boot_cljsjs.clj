@@ -1,4 +1,4 @@
-(ns cljsjs.app
+(ns cljsjs.boot-cljsjs
   {:boot/export-tasks true}
   (:require [boot.core          :as c]
             [boot.pod           :as pod]
@@ -7,7 +7,7 @@
             [cljsjs.impl.jars   :as jars]))
 
 (defn- get-classpath []
-  (System/getProperty "java.class.path"))
+  (System/getProperty "boot.class.path"))
 
 (defn- not-found [path]
   (throw (Throwable. (str "File " path " not found!"))))
@@ -21,22 +21,25 @@
       (not-found path))))
 
 (c/deftask from-cljsjs
-  "Seach jars specified as dependencies for files matching
-   the following patterns and add them to the fileset:"
-  [p profile ENV kw "Load production or development files"
-   x package     bool "Don't include files in result"]
-  (let [classpath (atom nil)
-        tmp       (c/temp-dir!)
-        profile   (or profile :development)]
+  "Unpack cljsjs files from jar dependencies."
+  [p profile ENV kw "Load production or development files"]
+  (let [classpath  (atom nil)
+        manifest   (atom nil)
+        tmp        (c/temp-dir!)
+        profile    (or profile :development)
+        merge-meta #(vary-meta %1 (fnil (partial merge-with into) {}) %2)]
     (c/with-pre-wrap fileset
       (when-not (= @classpath (get-classpath))
+        (c/empty-dir! tmp)
         (reset! classpath (get-classpath))
-        (let [env     (c/get-env)
-              exts    [".inc.js" ".ext.js" ".lib.js"]
-              markers ["cljsjs/common/" (str "cljsjs/" (name profile) "/")]]
-          (doseq [f (jars/cljs-dep-files env markers exts)]
-            (copy-file tmp f f))))
-      (-> fileset ((if package c/add-source c/add-resource) tmp) c/commit!))))
+        (let [env       (c/get-env)
+              indexed   (partial map-indexed (comp reverse list))
+              markers   ["cljsjs/common/" (str "cljsjs/" (name profile) "/")]
+              files     (jars/cljs-dep-files env markers [])
+              dep-order (reduce (partial apply assoc) {} (indexed files))]
+          (doseq [f files] (copy-file tmp f f))
+          (reset! manifest {:dependency-order dep-order})))
+      (-> fileset (c/add-source tmp) (merge-meta @manifest) c/commit!))))
 
 (c/deftask from-jars
   "Add non-boot ready js files to the fileset"

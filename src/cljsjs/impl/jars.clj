@@ -35,8 +35,7 @@
   [env markers exts]
   (letfn [(files [marker] (->> marker
                                (dep-jars-on-cp env)
-                               ; FIXME this breaks stuff currently
-                               ;(in-dep-order env)
+                               (in-dep-order env) ; FIXME this breaks stuff currently
                                (mapcat #(files-in-jar % marker exts))
                                (map first)))]
     (apply concat (map files markers))))
