@@ -24,22 +24,23 @@
   "Unpack cljsjs files from jar dependencies."
   [p profile ENV kw "Load production or development files"]
   (let [classpath  (atom nil)
-        manifest   (atom nil)
+        filemeta   (atom nil)
         tmp        (c/temp-dir!)
-        profile    (or profile :development)
-        merge-meta #(vary-meta %1 (fnil (partial merge-with into) {}) %2)]
+        profile    (or profile :development)]
     (c/with-pre-wrap fileset
       (when-not (= @classpath (get-classpath))
         (c/empty-dir! tmp)
         (reset! classpath (get-classpath))
         (let [env       (c/get-env)
-              indexed   (partial map-indexed (comp reverse list))
               markers   ["cljsjs/common/" (str "cljsjs/" (name profile) "/")]
               files     (jars/cljs-dep-files env markers [])
-              dep-order (reduce (partial apply assoc) {} (indexed files))]
+              dep-order (-> (fn [xs [n p]]
+                              (assoc xs p {:dependency-order n}))
+                            (reduce {} (map-indexed list files)))]
+          (prn :deps dep-order)
           (doseq [f files] (copy-file tmp f f))
-          (reset! manifest {:dependency-order dep-order})))
-      (-> fileset (c/add-source tmp) (merge-meta @manifest) c/commit!))))
+          (reset! filemeta dep-order)))
+      (-> fileset (c/add-source tmp) (c/add-meta @filemeta) c/commit!))))
 
 (c/deftask from-jars
   "Add non-boot ready js files to the fileset"
