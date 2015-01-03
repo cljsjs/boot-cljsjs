@@ -45,15 +45,14 @@
 (c/deftask from-jars
   "Add non-boot ready js files to the fileset"
   [p path PATH     str  "The path of file in classpath"
-   t target TARGET str  "Target path"
-   x package       bool "Don't include files in result"]
+   t target TARGET str  "Target path"]
   (let [tmp (c/temp-dir!)
         classpath (atom nil)]
     (c/with-pre-wrap fileset
       (when-not (= @classpath (get-classpath))
         (reset! classpath (get-classpath))
         (copy-file tmp path target))
-      (-> fileset ((if package c/add-source c/add-resource) tmp) c/commit!))))
+      (-> fileset (c/add-source tmp) c/commit!))))
 
 (def ^:private webjar-deps '[[org.webjars/webjars-locator "0.19"]
                              [org.slf4j/slf4j-nop "1.7.7"]])
@@ -63,8 +62,7 @@
 (c/deftask from-webjars
   "Add file from webjars to fileset"
   [n name NAME str "webjar / asset path"
-   t target TARGET str "Target path"
-   x package bool "Don't include files in result"]
+   t target TARGET str "Target path"]
   (let [tmp (c/temp-dir!)
         classpath (atom nil)
         assets (pod/with-call-in @webjar-pod (cljsjs.impl.webjars/asset-map))]
@@ -73,7 +71,7 @@
         (reset! classpath (get-classpath))
         (let [f (or (get assets name) (not-found name))]
           (copy-file tmp f target)))
-      (-> fileset ((if package c/add-source c/add-resource) tmp) c/commit!))))
+      (-> fileset (c/add-source tmp) c/commit!))))
 
 (c/deftask js-import
   "Task exists only for legacy support"
