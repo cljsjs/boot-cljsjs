@@ -16,7 +16,7 @@
   (let [f (io/resource path)]
     (if f
       (do
-        (util/info (str "Adding " path " to fileset\n"))
+        (util/info "Adding %s to fileset\n" path)
         (pod/copy-url f (io/file tmp target)))
       (not-found path))))
 
@@ -37,8 +37,9 @@
               dep-order (-> (fn [xs [n p]]
                               (assoc xs p {:dependency-order n}))
                             (reduce {} (map-indexed list files)))]
-          (prn :deps dep-order)
-          (doseq [f files] (copy-file tmp f f))
+          ;(prn :deps dep-order)
+          (doseq [f files]
+            (copy-file tmp f f))
           (reset! filemeta dep-order)))
       (-> fileset (c/add-source tmp) (c/add-meta @filemeta) c/commit!))))
 
