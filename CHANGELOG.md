@@ -1,4 +1,10 @@
-## 0.3.1 (x.x.201x)
+## 0.4.0 (6.1.2015)
+
+- Removed deperacted js-import task
+- Added packaging ns which provides download-task to be used when creating
+  new cljsjs libraries.
+
+## 0.3.1 (5.1.2015)
 
 - Main namespace is now `cljsjs.boot-cljsjs`
 - Removed `:package` flag

@@ -8,9 +8,11 @@
 This project provides tasks for the [boot][boot] build system to
 package and use Javascript dependencies in Clojurescript projects.
 
-- [cljsjs.app][cljsjs-app] provides tasks to be used in application
+- [cljsjs.boot-cljsjs][main-ns] provides tasks to be used in application
   project to add JS files from diffrent sources to fileset so they can
   be used by [boot-cljs][boot-cljs].
+- [cljsjs.boot-cljsjs.packaging][packaging-ns] provides tasks to help
+  packaging of libraries for cljsjs.
 
 ## Using libraries
 
@@ -112,7 +114,7 @@ Distributed under the Eclipse Public License, the same as Clojure.
 
 [boot]: https://github.com/boot-clj/boot
 [cljsjs-packages]: https://github.com/cljsjs/packages
-[cljsjs-packaging]: https://github.com/cljsjs/boot-cljsjs/blob/master/src/cljsjs/packaging.clj
-[cljsjs-app]: https://github.com/cljsjs/boot-cljsjs/blob/master/src/cljsjs/app.clj
+[packaging-ns]: src/cljsjs/boot_cljsjs/packaging.clj
+[main-ns]: src/cljsjs/boot_cljsjs.clj
 [boot-cljs]: https://github.com/adzerk/boot-cljs
 [cljsjs-react]: https://github.com/cljsjs/packages/tree/master/react
