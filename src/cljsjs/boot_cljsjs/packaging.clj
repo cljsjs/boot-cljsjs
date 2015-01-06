@@ -8,21 +8,28 @@
            [javax.xml.bind DatatypeConverter]
            [java.util.zip ZipFile]))
 
+(defn- realize-input-stream! [s]
+  (loop [c (.read s)]
+    (if-not (neg? c)
+      (recur (.read s)))))
+
+(defn- message-digest->str [^MessageDigest message-digest]
+  (-> message-digest
+      (.digest)
+      (DatatypeConverter/printHexBinary)))
+
 (c/deftask checksum
   [s sum FILENAME=CHECKSUM {str str} "Check the md5 checksum of file against md5"]
   (c/with-pre-wrap fileset
     (doseq [f (c/ls fileset)
             :let [path (c/tmppath f)]]
       (when-let [checksum (some-> (get sum path) string/upper-case)]
-        (with-open [is (io/input-stream (c/tmpfile f))]
-          (let [md (MessageDigest/getInstance "MD5")
-                dis (DigestInputStream. is md)
-                ; Read the whole file, we don't need output but to realize the digest
-                _ (slurp dis)
-                dig (.digest (.getMessageDigest dis))
-                real-checksum (DatatypeConverter/printHexBinary dig)]
-            (if (not= checksum real-checksum)
-              (throw (IllegalStateException. (format "Checksum of file %s in not %s but %s" path checksum real-checksum))))))))
+        (with-open [is  (io/input-stream (c/tmpfile f))
+                    dis (DigestInputStream. is (MessageDigest/getInstance "MD5"))]
+          (realize-input-stream! dis)
+          (let [real (message-digest->str (.getMessageDigest dis))]
+            (if (not= checksum real)
+              (throw (IllegalStateException. (format "Checksum of file %s in not %s but %s" path checksum real))))))))
     fileset))
 
 (c/deftask unzip
@@ -39,7 +46,8 @@
           (doseq [entry entries
                   :let [target (io/file tmp (.getName entry))]]
             (io/make-parents target)
-            (io/copy (.getInputStream zipfile entry) target)))
+            (with-open [is (.getInputStream zipfile entry) ]
+              (io/copy is target))))
         (-> fileset (c/rm archives) (c/add-resource tmp) c/commit!)))))
 
 (c/deftask download
@@ -53,7 +61,8 @@
       (c/with-pre-wrap fileset
         (let [target (io/file tmp fname)]
           (util/info "Downloading %s\n" fname)
-          (io/copy (io/input-stream url) target))
+          (with-open [is (io/input-stream url) ]
+            (io/copy is target)))
         (-> fileset (c/add-resource tmp) c/commit!))
       checksum (comp (cljsjs.boot-cljsjs.packaging/checksum :sum {fname checksum}))
       unzip    (comp (cljsjs.boot-cljsjs.packaging/unzip :paths #{fname})))))
