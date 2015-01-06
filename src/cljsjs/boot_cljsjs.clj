@@ -73,21 +73,3 @@
         (let [f (or (get assets name) (not-found name))]
           (copy-file tmp f target)))
       (-> fileset (c/add-source tmp) c/commit!))))
-
-(c/deftask js-import
-  "Task exists only for legacy support"
-  [c combined-preamble PREAMBLE str "Concat all .inc.js file into file at this destination"]
-  (comp
-   (from-cljsjs)
-   (c/with-pre-wrap fileset
-     (let [inc-files  (c/by-ext [".inc.js"] (c/input-files fileset))
-           tmp  (c/temp-dir!)]
-       (util/info "Found %s .inc.js files\n" (count inc-files))
-       (let [path (or combined-preamble "preamble.js")
-             comb (io/file tmp path)]
-         (util/info "Adding combined .inc.js files as %s\n" path)
-         (io/make-parents comb)
-         (spit comb "")
-         (doseq [f inc-files]
-           (spit comb (slurp (c/tmpfile f)) :append true)))
-       (-> fileset (c/add-resource tmp) c/commit!)))))
