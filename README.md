@@ -85,7 +85,7 @@ NOTE: This a bad example because React is added to fileset twice.
 
                           [cljsjs/boot-cljsjs "0.3.0-SNAPSHOT"]])
 
-(require '[cljsjs.app :refer :all])
+(require '[cljsjs.boot-cljsjs :refer [from-cljsjs from-jars from-webjars])
 
 (deftask dev []
   (comp
