@@ -76,7 +76,7 @@ Cljsjs jars include both development (non-minified) and production (minified) ve
 
 ### Example
 
-NOTE: This a bad example because React is added to fileset twice.
+This example illustrates how you could use `cljsjs/react` in your Reagent project:
 
 ```clj
 ;; in your build.boot file:
