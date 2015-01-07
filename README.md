@@ -99,6 +99,8 @@ This example illustrates how you could use `cljsjs/react` in your Reagent projec
 ;   handle files in the fileset ending in `.inc.js`, `.ext.js` and
 ;   `.lib.js` using them as preamble, externs and library files
 ;   respectively.
+;   For more information on those compiler switches, please refer to
+;   https://github.com/clojure/clojurescript/wiki/Compiler-Options
 
 (deftask build-dev []
   (comp
