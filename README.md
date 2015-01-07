@@ -79,27 +79,36 @@ Cljsjs jars include both development (non-minified) and production (minified) ve
 NOTE: This a bad example because React is added to fileset twice.
 
 ```clj
-(set-env! :dependencies '[[org.webjars/momentjs "2.8.3"]
-                          [com.facebook/react "0.12.2"]
-                          [cljsjs/react "0.12.1"]
+;; in your build.boot file:
+(set-env!
+  :source-paths #{"src"}
+  :dependencies '[[adzerk/boot-cljs   "0.0-2629-1" :scope "test"]
+                  [cljsjs/boot-cljsjs "0.4.0"      :scope "test"]
+                  [cljsjs/react       "0.12.2-3"]
+                  [reagent            "0.4.3"]]
 
-                          [cljsjs/boot-cljsjs "0.3.0-SNAPSHOT"]])
+(require '[adzerk.boot-cljs   :refer [cljs]]
+         '[cljsjs.boot-cljsjs :refer [from-cljsjs]])
 
-(require '[cljsjs.boot-cljsjs :refer [from-cljsjs from-jars from-webjars])
 
-(deftask dev []
+; Below two tasks are used:
+; - `from-cljsjs` imports files from cljsjs jars into the fileset,
+;   which will be passed to the next task. The `:profile` option
+;   allows you to choose between production and development assets.
+; - `cljs` compiles your Clojurescript code. The `cljs` task will
+;   handle files in the fileset ending in `.inc.js`, `.ext.js` and
+;   `.lib.js` using them as preamble, externs and library files
+;   respectively.
+
+(deftask build-dev []
   (comp
-    (from-cljsjs :target "public")
-    (from-jars :path "react/react.js" :target "public/react.inc.js")
-    (from-webjars :name "momentjs/moment.js" :target "public/moment.inc.js")
-    (watch)))
+    (from-cljsjs :profile :development)
+    (cljs :optimizations :none)))
 
-(deftask package []
+(deftask build-prod []
   (comp
-    (from-cljsjs :target "public" :profile :production)
-    (from-jars :package true :path "react/min/react.min.js" :target "public/react.inc.js")
-    (from-jars :package true :path "react/externs/react.js" :target "public/react.ext.js")
-    (from-webjars :package true :name "momentjs/min/moment.min.js" :target "public/moment.inc.js")))
+    (from-cljsjs :profile :production)
+    (cljs :optimizations :advanced)))
 ```
 
 ## Packaging jars
