@@ -1,6 +1,6 @@
 (set-env!
   :source-paths #{"src"}
-  :dependencies '[[adzerk/bootlaces "0.1.8" :scope "test"]])
+  :dependencies '[[adzerk/bootlaces "0.1.9" :scope "test"]])
 
 (require '[adzerk.bootlaces :refer :all])
 
@@ -15,5 +15,4 @@
                       libraries for Clojurescript projects"
         :url         "https://github.com/cljsjs/boot-cljsjs"
         :scm         {:url "https://github.com/cljsjs/boot-cljsjs"}
-        :license     {:name "Eclipse Public License"
-                      :url  "http://www.eclipse.org/legal/epl-v10.html"}})
+        :license     {"Eclipse Public License" "http://www.eclipse.org/legal/epl-v10.html"}})
