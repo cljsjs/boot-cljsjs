@@ -34,12 +34,13 @@
         (let [env       (c/get-env)
               markers   ["cljsjs/common/" (str "cljsjs/" (name profile) "/")]
               files     (jars/cljs-dep-files env markers [])
+              paths     (map #(.replaceAll % "^cljsjs/[^/]+/" "") files)
               dep-order (-> (fn [xs [n p]]
                               (assoc xs p {:dependency-order n}))
-                            (reduce {} (map-indexed list files)))]
+                            (reduce {} (map-indexed list paths)))]
           ;(prn :deps dep-order)
-          (doseq [f files]
-            (copy-file tmp f f))
+          (doseq [[f p] (map list files paths)]
+            (copy-file tmp f p))
           (reset! filemeta dep-order)))
       (-> fileset (c/add-source tmp) (c/add-meta @filemeta) c/commit!))))
 
