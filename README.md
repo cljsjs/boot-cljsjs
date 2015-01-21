@@ -99,6 +99,8 @@ This example illustrates how you could use `cljsjs/react` in your Reagent projec
 ;   handle files in the fileset ending in `.inc.js`, `.ext.js` and
 ;   `.lib.js` using them as preamble, externs and library files
 ;   respectively.
+;   For reference: https://github.com/adzerk/boot-cljs#preamble-externs-and-lib-files
+
 
 (deftask build-dev []
   (comp
