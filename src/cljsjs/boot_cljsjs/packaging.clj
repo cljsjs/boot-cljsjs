@@ -3,6 +3,7 @@
   (:require [boot.core          :as c]
             [boot.util          :as util]
             [clojure.java.io    :as io]
+            [clojure.pprint     :as pprint]
             [clojure.string     :as string])
   (:import [java.security DigestInputStream MessageDigest]
            [javax.xml.bind DatatypeConverter]
@@ -76,12 +77,15 @@
       (let [in-files (c/input-files fileset)
             regular  (c/tmppath (first (c/by-ext [".inc.js"] in-files)))
             minified (c/tmppath (first (c/by-ext [".min.inc.js"] in-files)))
-            externs  (mapv c/tmppath (c/by-ext [".ext.js"] in-files))]
-        (write-deps-cljs!
-         {:foreign-libs {:file regular
-                         :file-min minified
-                         :provides [name]}
-          :externs externs})
+            externs  (mapv c/tmppath (c/by-ext [".ext.js"] in-files))
+            deps     {:foreign-libs [{:file regular
+                                      :file-min minified
+                                      :provides [name]}]
+                      :externs externs}]
+
+        (util/info "Writing deps.cljs\n")
+        ;(pprint/pprint deps)
+        (write-deps-cljs! deps)
         (-> fileset
             (c/add-resource tmp)
             c/commit!)))))
