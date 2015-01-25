@@ -66,3 +66,22 @@
         (-> fileset (c/add-resource tmp) c/commit!))
       checksum (comp (cljsjs.boot-cljsjs.packaging/checksum :sum {fname checksum}))
       unzip    (comp (cljsjs.boot-cljsjs.packaging/unzip :paths #{fname})))))
+
+(c/deftask deps-cljs
+  [n name NAME str "Name for provided foreign lib"]
+  (let [tmp              (c/temp-dir!)
+        deps-file        (io/file tmp "deps.cljs")
+        write-deps-cljs! #(spit deps-file (pr-str %))]
+    (c/with-pre-wrap fileset
+      (let [in-files (c/input-files fileset)
+            regular  (c/tmppath (first (c/by-ext [".inc.js"] in-files)))
+            minified (c/tmppath (first (c/by-ext [".min.inc.js"] in-files)))
+            externs  (mapv c/tmppath (c/by-ext [".ext.js"] in-files))]
+        (write-deps-cljs!
+         {:foreign-libs {:file regular
+                         :file-min minified
+                         :provides [name]}
+          :externs externs})
+        (-> fileset
+            (c/add-resource tmp)
+            c/commit!)))))
