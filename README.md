@@ -5,54 +5,19 @@
 
 [](dependency)
 ```clojure
-[cljsjs/boot-cljsjs "0.4.1"] ;; latest release
+[cljsjs/boot-cljsjs "0.4.2"] ;; latest release
 ```
 [](/dependency)
 
 This project provides tasks for the [boot][boot] build system to
-package and use Javascript dependencies in Clojurescript projects.
+package Javascript dependencies in Clojurescript projects.
 
-- [cljsjs.boot-cljsjs][main-ns] provides tasks to be used in application
-  project to add JS files from diffrent sources to fileset so they can
-  be used by [boot-cljs][boot-cljs].
 - [cljsjs.boot-cljsjs.packaging][packaging-ns] provides tasks to help
   packaging of libraries for cljsjs.
 
 ## Using libraries
 
-If you are using [boot-cljs][boot-cljs] you might want to use external
-JS libraries with your project. Using boot-cljsjs you can add those
-external files from jar files instead of copying them to your project.
-
-Using boot-cljsjs you can use JS libraries from three sources in your
-project.
-
-1. Cljsjs packaged jars
-  - When using Cljsjs jars the transitive dependencies are added automatically to fileset
-2. Webjars
-3. Any jar-files containing js-files
-
-For each source we have own task used to bring files from the source
-to the fileset.
-
-1. `from-cljsjs`
-  - This task will go through all jars in your classpath and find
-    files in cljsjs prefix.
-  - All files will be copied to filesset
-2. `from-webjars`
-  - This task will go through all jars in your classpath and find
-    files in webjars prefix.
-  - You need to provide name for file you want to import,
-    e.g. "momentjs/moment.js"
-    - This would import e.g. file
-      "META-INF/resources/webjars/momentjs/2.8.3/moment.js" depending
-      on version etc of the dependancy.
-  - To import multiple files from Webjars, you would call this task
-    multiple times.
-3. `from-jars`
-  - This task will just copy a file of given path from classpath. In
-  effect this just calls `(io/resource path)` and copies found file to
-  fileset.
+Please refer to the [packages][cljsjs-packages] project for documentation.
 
 ### Why this works
 

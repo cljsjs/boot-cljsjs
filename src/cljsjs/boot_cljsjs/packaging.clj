@@ -69,7 +69,8 @@
       unzip    (comp (cljsjs.boot-cljsjs.packaging/unzip :paths #{fname})))))
 
 (c/deftask deps-cljs
-  [n name NAME str "Name for provided foreign lib"]
+  [n name NAME str "Name for provided foreign lib"
+   R requires REQ [str] "Modules required by this lib"]
   (let [tmp              (c/temp-dir!)
         deps-file        (io/file tmp "deps.cljs")
         write-deps-cljs! #(spit deps-file (pr-str %))]
@@ -78,14 +79,17 @@
             regular  (c/tmppath (first (c/by-ext [".inc.js"] in-files)))
             minified (c/tmppath (first (c/by-ext [".min.inc.js"] in-files)))
             externs  (mapv c/tmppath (c/by-ext [".ext.js"] in-files))
-            deps     {:foreign-libs [{:file regular
-                                      :file-min minified
-                                      :provides [name]}]
-                      :externs externs}]
+            base-lib {:file regular
+                      :file-min minified
+                      :provides [name]}
+            lib      (if requires
+                        (merge base-lib {:requires requires})
+                        base-lib)]
 
         (util/info "Writing deps.cljs\n")
         ;(pprint/pprint deps)
-        (write-deps-cljs! deps)
+        (write-deps-cljs! {:foreign-libs [lib]
+                           :externs externs})
         (-> fileset
             (c/add-resource tmp)
             c/commit!)))))
