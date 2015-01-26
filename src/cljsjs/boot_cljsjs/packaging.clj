@@ -69,6 +69,14 @@
       unzip    (comp (cljsjs.boot-cljsjs.packaging/unzip :paths #{fname})))))
 
 (c/deftask deps-cljs
+  "Creates a deps.cljs file based on information in the fileset and
+  what's passed as options.
+
+  The first .inc.js file is passed as :file, similarily .min.inc.js
+  is passed as :file-min. Files ending in .ext.js are passed as :externs.
+
+  :requires can be specified through the :requires option.
+  :provides is determined by what's passed to :name"
   [n name NAME str "Name for provided foreign lib"
    R requires REQ [str] "Modules required by this lib"]
   (let [tmp              (c/temp-dir!)
