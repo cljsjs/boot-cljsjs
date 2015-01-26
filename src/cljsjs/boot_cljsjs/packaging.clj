@@ -3,6 +3,7 @@
   (:require [boot.core          :as c]
             [boot.util          :as util]
             [clojure.java.io    :as io]
+            [clojure.pprint     :as pprint]
             [clojure.string     :as string])
   (:import [java.security DigestInputStream MessageDigest]
            [javax.xml.bind DatatypeConverter]
@@ -66,3 +67,37 @@
         (-> fileset (c/add-resource tmp) c/commit!))
       checksum (comp (cljsjs.boot-cljsjs.packaging/checksum :sum {fname checksum}))
       unzip    (comp (cljsjs.boot-cljsjs.packaging/unzip :paths #{fname})))))
+
+(c/deftask deps-cljs
+  "Creates a deps.cljs file based on information in the fileset and
+  what's passed as options.
+
+  The first .inc.js file is passed as :file, similarily .min.inc.js
+  is passed as :file-min. Files ending in .ext.js are passed as :externs.
+
+  :requires can be specified through the :requires option.
+  :provides is determined by what's passed to :name"
+  [n name NAME str "Name for provided foreign lib"
+   R requires REQ [str] "Modules required by this lib"]
+  (let [tmp              (c/temp-dir!)
+        deps-file        (io/file tmp "deps.cljs")
+        write-deps-cljs! #(spit deps-file (pr-str %))]
+    (c/with-pre-wrap fileset
+      (let [in-files (c/input-files fileset)
+            regular  (c/tmppath (first (c/by-ext [".inc.js"] in-files)))
+            minified (c/tmppath (first (c/by-ext [".min.inc.js"] in-files)))
+            externs  (mapv c/tmppath (c/by-ext [".ext.js"] in-files))
+            base-lib {:file regular
+                      :file-min minified
+                      :provides [name]}
+            lib      (if requires
+                        (merge base-lib {:requires requires})
+                        base-lib)]
+
+        (util/info "Writing deps.cljs\n")
+        ;(pprint/pprint deps)
+        (write-deps-cljs! {:foreign-libs [lib]
+                           :externs externs})
+        (-> fileset
+            (c/add-resource tmp)
+            c/commit!)))))
