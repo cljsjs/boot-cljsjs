@@ -19,7 +19,7 @@ package Javascript dependencies in Clojurescript projects.
 
 Please refer to the [packages][cljsjs-packages] project for documentation.
 
-### Packaging a library
+## Packaging a library
 
 There are various tasks in the `cljsjs.boot-cljsjs.packaging` namespace to smooth
 packaging of libraries:
