@@ -4,7 +4,7 @@
 
 (require '[adzerk.bootlaces :refer :all])
 
-(def +version+ "0.4.2")
+(def +version+ "0.4.3")
 
 (bootlaces! +version+)
 
@@ -15,4 +15,4 @@
                       libraries for Clojurescript projects"
         :url         "https://github.com/cljsjs/boot-cljsjs"
         :scm         {:url "https://github.com/cljsjs/boot-cljsjs"}
-        :license     {"Eclipse Public License" "http://www.eclipse.org/legal/epl-v10.html"}})
+        :license     {"EPL" "http://www.eclipse.org/legal/epl-v10.html"}})

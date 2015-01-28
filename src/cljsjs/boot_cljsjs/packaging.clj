@@ -84,7 +84,8 @@
         write-deps-cljs! #(spit deps-file (pr-str %))]
     (c/with-pre-wrap fileset
       (let [in-files (c/input-files fileset)
-            regular  (c/tmppath (first (c/by-ext [".inc.js"] in-files)))
+            regular  (c/tmppath (first (c/by-ext [".inc.js"]
+                                                 (c/not-by-ext [".min.inc.hs"] in-files))))
             minified (c/tmppath (first (c/by-ext [".min.inc.js"] in-files)))
             externs  (mapv c/tmppath (c/by-ext [".ext.js"] in-files))
             base-lib {:file regular
