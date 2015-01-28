@@ -1,10 +1,11 @@
 (ns cljsjs.boot-cljsjs.packaging
   {:boot/export-tasks true}
-  (:require [boot.core          :as c]
-            [boot.util          :as util]
-            [clojure.java.io    :as io]
-            [clojure.pprint     :as pprint]
-            [clojure.string     :as string])
+  (:require [boot.core           :as c]
+            [boot.util           :as util]
+            [clojure.java.io     :as io]
+            [clojure.pprint      :as pprint]
+            [clojure.string      :as string]
+            [asset-minifier.core :as min])
   (:import [java.security DigestInputStream MessageDigest]
            [javax.xml.bind DatatypeConverter]
            [java.util.zip ZipFile]))
@@ -94,11 +95,26 @@
             lib      (if requires
                         (merge base-lib {:requires requires})
                         base-lib)]
-
         (util/info "Writing deps.cljs\n")
-        ;(pprint/pprint deps)
         (write-deps-cljs! {:foreign-libs [lib]
                            :externs externs})
+        (-> fileset
+            (c/add-resource tmp)
+            c/commit!)))))
+
+(c/deftask minify
+  ""
+  [i in  INPUT  str "Path to file to be compressed"
+   o out OUTPUT str "Path to where compressed file should be saved"]
+  (assert in "Path to input file required")
+  (assert out "Path to output file required")
+  (let [tmp        (c/temp-dir!)
+        out-file   (io/file tmp out)]
+    (c/with-pre-wrap fileset
+      (let [in-files (c/input-files fileset)
+            in-file  (c/tmpfile (first (c/by-re [(re-pattern in)] in-files)))]
+        (util/info "Minifying %s\n" (.getPath in-file))
+        (min/minify-js in-file out-file)
         (-> fileset
             (c/add-resource tmp)
             c/commit!)))))
