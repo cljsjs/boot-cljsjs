@@ -1,11 +1,11 @@
 (ns cljsjs.boot-cljsjs.packaging
   {:boot/export-tasks true}
   (:require [boot.core           :as c]
+            [boot.pod            :as pod]
             [boot.util           :as util]
             [clojure.java.io     :as io]
             [clojure.pprint      :as pprint]
-            [clojure.string      :as string]
-            [asset-minifier.core :as min])
+            [clojure.string      :as string])
   (:import [java.security DigestInputStream MessageDigest]
            [javax.xml.bind DatatypeConverter]
            [java.util.zip ZipFile]))
@@ -102,19 +102,36 @@
             (c/add-resource tmp)
             c/commit!)))))
 
+(defn minifier-pod []
+  (pod/make-pod (assoc-in (c/get-env) [:dependencies] '[[asset-minifier "0.1.6"]])))
+
 (c/deftask minify
-  ""
+  "Minifies .js and .css files based on their file extension
+
+   NOTE: potentially slow when called with watch or multiple times"
   [i in  INPUT  str "Path to file to be compressed"
    o out OUTPUT str "Path to where compressed file should be saved"]
   (assert in "Path to input file required")
   (assert out "Path to output file required")
-  (let [tmp        (c/temp-dir!)
-        out-file   (io/file tmp out)]
+  (let [tmp      (c/temp-dir!)
+        out-file (io/file tmp out)
+        min-pod  (minifier-pod)]
     (c/with-pre-wrap fileset
       (let [in-files (c/input-files fileset)
-            in-file  (c/tmpfile (first (c/by-re [(re-pattern in)] in-files)))]
-        (util/info "Minifying %s\n" (.getPath in-file))
-        (min/minify-js in-file out-file)
+            in-file  (c/tmpfile (first (c/by-re [(re-pattern in)] in-files)))
+            in-path  (.getPath in-file)
+            out-path (.getPath out-file)]
+        (util/info "Minifying %s\n" (.getName in-file))
+        (io/make-parents out-file)
+        (cond
+          (. in-path (endsWith "js"))
+          (pod/with-eval-in min-pod
+            (require 'asset-minifier.core)
+            (asset-minifier.core/minify-js ~in-path ~out-path))
+          (. in-path (endsWith "css"))
+          (pod/with-eval-in min-pod
+            (require 'asset-minifier.core)
+            (asset-minifier.core/minify-css ~in-path ~out-path)))
         (-> fileset
             (c/add-resource tmp)
             c/commit!)))))
