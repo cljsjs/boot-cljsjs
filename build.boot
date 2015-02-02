@@ -5,7 +5,7 @@
 (require '[adzerk.bootlaces :refer :all]
          '[cljsjs.boot-cljsjs.packaging :refer [minify]])
 
-(def +version+ "0.4.5")
+(def +version+ "0.4.6")
 
 (bootlaces! +version+)
 

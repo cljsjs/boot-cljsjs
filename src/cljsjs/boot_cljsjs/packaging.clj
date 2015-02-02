@@ -85,22 +85,23 @@
         write-deps-cljs! #(spit deps-file (pr-str %))]
     (c/with-pre-wrap fileset
       (let [in-files (c/input-files fileset)
-            regular  (c/tmppath (first (c/by-ext [".inc.js"]
-                                                 (c/not-by-ext [".min.inc.js"] in-files))))
-            minified (c/tmppath (first (c/by-ext [".min.inc.js"] in-files)))
-            externs  (mapv c/tmppath (c/by-ext [".ext.js"] in-files))
-            base-lib {:file regular
-                      :file-min minified
-                      :provides [name]}
-            lib      (if requires
-                        (merge base-lib {:requires requires})
-                        base-lib)]
+            regular  (first (c/by-ext [".inc.js"] (c/not-by-ext [".min.inc.js"] in-files)))
+            minified (first (c/by-ext [".min.inc.js"] in-files))
+            externs  (c/by-ext [".ext.js"] in-files)]
+        (assert regular "No .inc.js file found!")
+        (assert (first externs) "No .ext.js file(s) found!")
         (util/info "Writing deps.cljs\n")
-        (write-deps-cljs! {:foreign-libs [lib]
-                           :externs externs})
-        (-> fileset
-            (c/add-resource tmp)
-            c/commit!)))))
+
+        (let [base-lib {:file (c/tmppath regular)
+                        :provides [name]}
+              lib      (cond-> base-lib
+                         requires (merge base-lib {:requires requires})
+                         minified (merge base-lib {:file-min (c/tmppath minified)}))]
+          (write-deps-cljs! {:foreign-libs [lib]
+                             :externs (mapv c/tmppath externs)})
+          (-> fileset
+              (c/add-resource tmp)
+              c/commit!))))))
 
 (defn minifier-pod []
   (pod/make-pod (assoc-in (c/get-env) [:dependencies] '[[asset-minifier "0.1.6"]])))
