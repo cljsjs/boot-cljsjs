@@ -136,3 +136,23 @@
         (-> fileset
             (c/add-resource tmp)
             c/commit!)))))
+
+(c/deftask replace-content
+  "Replaces portion of a file matching some pattern with some value."
+  [i in INPUT str "Path to file to be modified"
+   m match MATCH regex "Pattern to match"
+   v value VALUE str "Value to replace with"
+   o out OUTPUT str "Path to where modified file should be saved"]
+  (assert in "Path to input file required")
+  (let [tmp      (c/temp-dir!)
+        out-file (io/file tmp (or out in))]
+    (c/with-pre-wrap fileset
+      (let [in-files (c/input-files fileset)
+            in-file  (c/tmpfile (first (c/by-re [(re-pattern in)] in-files)))
+            in-path  (.getPath in-file)]
+        (util/info "Replacing content of %s\n" (.getName in-file))
+        (io/make-parents out-file)
+        (spit out-file (string/replace (slurp in-file) match value))
+        (-> fileset
+            (c/add-resource tmp)
+            c/commit!)))))
