@@ -79,7 +79,8 @@
   :requires can be specified through the :requires option.
   :provides is determined by what's passed to :name"
   [n name NAME str "Name for provided foreign lib"
-   R requires REQ [str] "Modules required by this lib"]
+   R requires REQ [str] "Modules required by this lib"
+   E no-externs bool "No externs are provided"]
   (let [tmp              (c/temp-dir!)
         deps-file        (io/file tmp "deps.cljs")
         write-deps-cljs! #(spit deps-file (pr-str %))]
@@ -89,7 +90,8 @@
             minified (first (c/by-ext [".min.inc.js"] in-files))
             externs  (c/by-ext [".ext.js"] in-files)]
         (assert regular "No .inc.js file found!")
-        (assert (first externs) "No .ext.js file(s) found!")
+        (if-not no-externs
+          (assert (first externs) "No .ext.js file(s) found!"))
         (util/info "Writing deps.cljs\n")
 
         (let [base-lib {:file (c/tmppath regular)
@@ -97,8 +99,8 @@
               lib      (cond-> base-lib
                          requires (merge base-lib {:requires requires})
                          minified (merge base-lib {:file-min (c/tmppath minified)}))]
-          (write-deps-cljs! {:foreign-libs [lib]
-                             :externs (mapv c/tmppath externs)})
+          (write-deps-cljs! (merge {:foreign-libs [lib]}
+                                   (if-not (empty? externs) {:externs (mapv c/tmppath externs)})))
           (-> fileset
               (c/add-resource tmp)
               c/commit!))))))
