@@ -5,7 +5,8 @@
             [boot.util           :as util]
             [clojure.java.io     :as io]
             [clojure.pprint      :as pprint]
-            [clojure.string      :as string])
+            [clojure.string      :as string]
+            [clj-http.client     :as http])
   (:import [java.security DigestInputStream MessageDigest]
            [javax.xml.bind DatatypeConverter]
            [java.util.zip ZipFile]))
@@ -63,7 +64,7 @@
       (c/with-pre-wrap fileset
         (let [target (io/file tmp fname)]
           (util/info "Downloading %s\n" fname)
-          (with-open [is (io/input-stream url) ]
+          (with-open [is (:body (http/get url {:as :stream}))]
             (io/copy is target)))
         (-> fileset (c/add-resource tmp) c/commit!))
       checksum (comp (cljsjs.boot-cljsjs.packaging/checksum :sum {fname checksum}))
