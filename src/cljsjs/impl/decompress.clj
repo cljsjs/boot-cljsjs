@@ -1,8 +1,6 @@
 (ns cljsjs.impl.decompress
-  {:boot/export-tasks true}
   (:require [boot.util           :as util]
-            [clojure.java.io     :as io]
-            [clojure.string      :as string])
+            [clojure.java.io     :as io])
   (:import [org.apache.commons.compress.compressors CompressorStreamFactory]
            [org.apache.commons.compress.archivers ArchiveStreamFactory]))
 

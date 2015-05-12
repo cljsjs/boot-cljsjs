@@ -5,9 +5,7 @@
             [boot.util           :as util]
             [clojure.java.io     :as io]
             [clojure.pprint      :as pprint]
-            [clojure.string      :as string]
-            [clj-http.client     :as http]
-            [cljsjs.impl.decompress :as d])
+            [clojure.string      :as string])
   (:import [java.security DigestInputStream MessageDigest]
            [javax.xml.bind DatatypeConverter]
            [java.util.zip ZipFile]))
@@ -71,6 +69,8 @@
                                                      :archive-format ~archive-format})))
         (-> fileset (c/rm archives) (c/add-resource tmp) c/commit!)))))
 
+(def download-deps '[[clj-http "1.0.1"]])
+
 (c/deftask download
   [u url      URL      str     "The url to download"
    n name     NAME     str     "Optional name for target file"
@@ -80,13 +80,13 @@
    f compression-format FORMAT str "Manually set format for decompression (e.g. lzma can't be autodetected)."
    F archive-format     FORMAT str "Manually set format for archive"]
   (let [tmp (c/temp-dir!)
+        pod (future (pod/make-pod (-> (c/get-env) (update-in [:dependencies] into download-deps))))
         fname (or name (last (string/split url #"/")))]
     (cond->
       (c/with-pre-wrap fileset
-        (let [target (io/file tmp fname)]
-          (util/info "Downloading %s\n" fname)
-          (with-open [is (:body (http/get url {:as :stream}))]
-            (io/copy is target)))
+        (util/info "Downloading %s\n" fname)
+        (pod/with-call-in @pod
+          (cljsjs.impl.download/download ~url ~(.getPath tmp) ~fname))
         (-> fileset (c/add-resource tmp) c/commit!))
       checksum (comp (cljsjs.boot-cljsjs.packaging/checksum :sum {fname checksum}))
       unzip    (comp (cljsjs.boot-cljsjs.packaging/unzip :paths #{fname}))
