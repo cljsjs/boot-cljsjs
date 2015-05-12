@@ -1,3 +1,13 @@
+## 0.4.8 (12.5.2015)
+
+- Added general decompression task
+  - Uses apache commons compress and should support all the most used
+  compression and archive formats
+
+## 0.4.7 (20.3.2015)
+
+- Use `clj-http` to download files (knows how to handle HTTP redirects)
+
 ## 0.4.0 (6.1.2015)
 
 - Removed deprecated js-import task
