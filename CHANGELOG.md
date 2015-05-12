@@ -1,3 +1,7 @@
+## 0.4.1 (12.5.2015)
+
+- Added untar task
+
 ## 0.4.0 (6.1.2015)
 
 - Removed deprecated js-import task
