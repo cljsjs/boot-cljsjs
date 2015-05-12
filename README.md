@@ -5,7 +5,7 @@
 
 [](dependency)
 ```clojure
-[cljsjs/boot-cljsjs "0.4.8-SNAPSHOT"] ;; latest release
+[cljsjs/boot-cljsjs "0.4.8"] ;; latest release
 ```
 [](/dependency)
 
