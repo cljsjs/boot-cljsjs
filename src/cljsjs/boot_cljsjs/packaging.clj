@@ -24,9 +24,9 @@
   [s sum FILENAME=CHECKSUM {str str} "Check the md5 checksum of file against md5"]
   (c/with-pre-wrap fileset
     (doseq [f (c/ls fileset)
-            :let [path (c/tmppath f)]]
+            :let [path (c/tmp-path f)]]
       (when-let [checksum (some-> (get sum path) string/upper-case)]
-        (with-open [is  (io/input-stream (c/tmpfile f))
+        (with-open [is  (io/input-stream (c/tmp-file f))
                     dis (DigestInputStream. is (MessageDigest/getInstance "MD5"))]
           (realize-input-stream! dis)
           (let [real (message-digest->str (.getMessageDigest dis))]
@@ -36,11 +36,11 @@
 
 (c/deftask unzip
   [p paths PATH #{str} "Paths in fileset to unzip"]
-  (let [tmp (c/temp-dir!)]
+  (let [tmp (c/tmp-dir!)]
     (c/with-pre-wrap fileset
-      (let [archives (filter (comp paths c/tmppath) (c/ls fileset))]
+      (let [archives (filter (comp paths c/tmp-path) (c/ls fileset))]
         (doseq [archive archives
-                :let [zipfile (ZipFile. (c/tmpfile archive))
+                :let [zipfile (ZipFile. (c/tmp-file archive))
                       entries (->> (.entries zipfile)
                                    enumeration-seq
                                    (remove #(.isDirectory %)))]]
@@ -58,13 +58,13 @@
   [p paths PATH #{str} "Paths in fileset to untar"
    f compression-format FORMAT str "Compression format"
    F archive-format FORMAT str "Archive format"]
-  (let [tmp (c/temp-dir!)
+  (let [tmp (c/tmp-dir!)
         pod (future (pod/make-pod (-> (c/get-env) (update-in [:dependencies] into decompress-deps))))]
     (c/with-pre-wrap fileset
-      (let [archives (filter (comp paths c/tmppath) (c/ls fileset))]
+      (let [archives (filter (comp paths c/tmp-path) (c/ls fileset))]
         (doseq [archive archives]
           (pod/with-call-in @pod
-            (cljsjs.impl.decompress/decompress-file ~(.getPath (c/tmpfile archive)) ~(.getPath tmp)
+            (cljsjs.impl.decompress/decompress-file ~(.getPath (c/tmp-file archive)) ~(.getPath tmp)
                                                     {:compression-format ~compression-format
                                                      :archive-format ~archive-format})))
         (-> fileset (c/rm archives) (c/add-resource tmp) c/commit!)))))
@@ -79,7 +79,7 @@
    X decompress        bool    "Decompress the archive (tar, zip, gzip, bzip...)"
    f compression-format FORMAT str "Manually set format for decompression (e.g. lzma can't be autodetected)."
    F archive-format     FORMAT str "Manually set format for archive"]
-  (let [tmp (c/temp-dir!)
+  (let [tmp (c/tmp-dir!)
         pod (future (pod/make-pod (-> (c/get-env) (update-in [:dependencies] into download-deps))))
         fname (or name (last (string/split url #"/")))]
     (cond->
@@ -104,7 +104,7 @@
   [n name NAME str "Name for provided foreign lib"
    R requires REQ [str] "Modules required by this lib"
    E no-externs bool "No externs are provided"]
-  (let [tmp              (c/temp-dir!)
+  (let [tmp              (c/tmp-dir!)
         deps-file        (io/file tmp "deps.cljs")
         write-deps-cljs! #(spit deps-file (pr-str %))]
     (c/with-pre-wrap fileset
@@ -117,13 +117,13 @@
           (assert (first externs) "No .ext.js file(s) found!"))
         (util/info "Writing deps.cljs\n")
 
-        (let [base-lib {:file (c/tmppath regular)
+        (let [base-lib {:file (c/tmp-path regular)
                         :provides [name]}
               lib      (cond-> base-lib
                          requires (merge base-lib {:requires requires})
-                         minified (merge base-lib {:file-min (c/tmppath minified)}))]
+                         minified (merge base-lib {:file-min (c/tmp-path minified)}))]
           (write-deps-cljs! (merge {:foreign-libs [lib]}
-                                   (if-not (empty? externs) {:externs (mapv c/tmppath externs)})))
+                                   (if-not (empty? externs) {:externs (mapv c/tmp-path externs)})))
           (-> fileset
               (c/add-resource tmp)
               c/commit!))))))
@@ -139,12 +139,12 @@
    o out OUTPUT str "Path to where compressed file should be saved"]
   (assert in "Path to input file required")
   (assert out "Path to output file required")
-  (let [tmp      (c/temp-dir!)
+  (let [tmp      (c/tmp-dir!)
         out-file (io/file tmp out)
         min-pod  (minifier-pod)]
     (c/with-pre-wrap fileset
       (let [in-files (c/input-files fileset)
-            in-file  (c/tmpfile (first (c/by-re [(re-pattern in)] in-files)))
+            in-file  (c/tmp-file (first (c/by-re [(re-pattern in)] in-files)))
             in-path  (.getPath in-file)
             out-path (.getPath out-file)]
         (util/info "Minifying %s\n" (.getName in-file))
@@ -169,11 +169,11 @@
    v value VALUE str "Value to replace with"
    o out OUTPUT str "Path to where modified file should be saved"]
   (assert in "Path to input file required")
-  (let [tmp      (c/temp-dir!)
+  (let [tmp      (c/tmp-dir!)
         out-file (io/file tmp (or out in))]
     (c/with-pre-wrap fileset
       (let [in-files (c/input-files fileset)
-            in-file  (c/tmpfile (first (c/by-re [(re-pattern in)] in-files)))
+            in-file  (c/tmp-file (first (c/by-re [(re-pattern in)] in-files)))
             in-path  (.getPath in-file)]
         (util/info "Replacing content of %s\n" (.getName in-file))
         (io/make-parents out-file)

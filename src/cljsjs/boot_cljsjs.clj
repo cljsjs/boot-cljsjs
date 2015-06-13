@@ -25,7 +25,7 @@
   [p profile ENV kw "Load production or development files"]
   (let [classpath  (atom nil)
         filemeta   (atom nil)
-        tmp        (c/temp-dir!)
+        tmp        (c/tmp-dir!)
         profile    (or profile :development)]
     (c/with-pre-wrap fileset
       (when-not (= @classpath (get-classpath))
@@ -48,7 +48,7 @@
   "Add non-boot ready js files to the fileset"
   [p path PATH     str  "The path of file in classpath"
    t target TARGET str  "Target path"]
-  (let [tmp (c/temp-dir!)
+  (let [tmp (c/tmp-dir!)
         classpath (atom nil)]
     (c/with-pre-wrap fileset
       (when-not (= @classpath (get-classpath))
@@ -65,7 +65,7 @@
   "Add file from webjars to fileset"
   [n name NAME str "webjar / asset path"
    t target TARGET str "Target path"]
-  (let [tmp (c/temp-dir!)
+  (let [tmp (c/tmp-dir!)
         classpath (atom nil)
         assets (pod/with-call-in @webjar-pod (cljsjs.impl.webjars/asset-map))]
     (c/with-pre-wrap fileset
