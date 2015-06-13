@@ -4,5 +4,6 @@
 
 (defn download [url out-dir fname]
   (let [target (io/file out-dir fname)]
+    (io/make-parents target)
     (with-open [is (:body (http/get url {:as :stream}))]
       (io/copy is target))))
