@@ -129,14 +129,15 @@
               c/commit!))))))
 
 (defn minifier-pod []
-  (pod/make-pod (assoc-in (c/get-env) [:dependencies] '[[asset-minifier "0.1.6"]])))
+  (pod/make-pod (assoc-in (c/get-env) [:dependencies] '[[asset-minifier "0.1.7"]])))
 
 (c/deftask minify
   "Minifies .js and .css files based on their file extension
 
    NOTE: potentially slow when called with watch or multiple times"
   [i in  INPUT  str "Path to file to be compressed"
-   o out OUTPUT str "Path to where compressed file should be saved"]
+   o out OUTPUT str "Path to where compressed file should be saved"
+   l lang LANGUAGE_IN kw "Language of the input javascript file. Default value is ecmascript3."]
   (assert in "Path to input file required")
   (assert out "Path to output file required")
   (let [tmp      (c/tmp-dir!)
@@ -153,7 +154,9 @@
           (. in-path (endsWith "js"))
           (pod/with-eval-in min-pod
             (require 'asset-minifier.core)
-            (asset-minifier.core/minify-js ~in-path ~out-path))
+            (asset-minifier.core/minify-js ~in-path ~out-path (if ~lang
+                                                                {:language ~lang}
+                                                                {})))
           (. in-path (endsWith "css"))
           (pod/with-eval-in min-pod
             (require 'asset-minifier.core)
