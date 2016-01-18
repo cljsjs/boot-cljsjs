@@ -1,3 +1,7 @@
+## 0.5.1 (18.1.2016)
+
+- added `lang` option to `minify` task to allow users to set input language for to-be-minified JS
+
 ## 0.4.8 (12.5.2015)
 
 - Added general decompression task
