@@ -69,7 +69,7 @@
                                                      :archive-format ~archive-format})))
         (-> fileset (c/rm archives) (c/add-resource tmp) c/commit!)))))
 
-(def download-deps '[[clj-http "2.1.0"]])
+(def download-deps '[[clj-http "2.2.0"]])
 
 (c/deftask download
   [u url      URL      str     "The url to download"
