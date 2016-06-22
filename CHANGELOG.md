@@ -1,3 +1,7 @@
+## 0.5.2 (22.6.2016)
+
+- Updated Clj-http to 2.2.0
+
 ## 0.5.1 (18.1.2016)
 
 - added `lang` option to `minify` task to allow users to set input language for to-be-minified JS
