@@ -1,7 +1,7 @@
 (set-env!
   :resource-paths #{"src"})
 
-(def +version+ "0.5.2")
+(def +version+ "0.6.0-SNAPSHOT")
 
 (task-options!
   pom  {:project     'cljsjs/boot-cljsjs

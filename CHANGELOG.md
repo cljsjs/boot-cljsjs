@@ -1,3 +1,12 @@
+## Unreleased
+
+- Remove `cljsjs.boot-cljsjs` namespace, including `from-cljsjs`, `from-jars` and
+`from-webjars` tasks. Alternatives:
+    - [Using non JS Clsjs assets](https://github.com/cljsjs/packages/wiki/Non-JS-Assets)
+    - [ring-webjars](https://github.com/weavejester/ring-webjars)
+    - [ring-cljsjs](https://github.com/Deraen/ring-cljsjs)
+    - Boot `sift` task
+
 ## 0.5.2 (22.6.2016)
 
 - Updated Clj-http to 2.2.0
