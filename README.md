@@ -1,19 +1,9 @@
-# boot-cljsjs
+# boot-cljsjs [![Clojars Project](https://img.shields.io/clojars/v/cljsjs/boot-cljsjs.svg)](https://clojars.org/cljsjs/boot-cljsjs)
 
 <img src="https://dl.dropboxusercontent.com/u/453692/cljsjs-logo.png"
   alt="CLJSJS logo" align="right" />
 
-[](dependency)
-```clojure
-[cljsjs/boot-cljsjs "0.5.1"] ;; latest release
-```
-[](/dependency)
-
-This project provides tasks for the [boot][boot] build system to
-package Javascript dependencies in Clojurescript projects.
-
-- [cljsjs.boot-cljsjs.packaging][packaging-ns] provides tasks to help
-  packaging of libraries for cljsjs.
+This project provides tasks to help packaging of libraries for Cljsjs.
 
 ## Using libraries
 
