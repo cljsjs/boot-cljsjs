@@ -7,7 +7,10 @@ This project provides tasks to help packaging of libraries for Cljsjs.
 
 ## Using libraries
 
-Please refer to the [packages][cljsjs-packages] project for documentation.
+Please refer to the [packages][cljsjs-packages] project for documentation:
+
+- [Creating Packages](https://github.com/cljsjs/packages/wiki/Creating-Packages)
+- [Updating Packages](https://github.com/cljsjs/packages/wiki/Updating-packages)
 
 # License
 
