@@ -9,32 +9,6 @@ This project provides tasks to help packaging of libraries for Cljsjs.
 
 Please refer to the [packages][cljsjs-packages] project for documentation.
 
-## Packaging a library
-
-There are various tasks in the `cljsjs.boot-cljsjs.packaging` namespace to smooth
-packaging of libraries:
-
-- `download` can be used to download zip files containing the files you want to package
-- `sift`, which is a regular Boot task, can be used to move files to the desired locations and filter out files you don't want to end up in the jar
-- `deps-cljs` creates a `deps.cljs` file based on the information in the fileset
-
-**Full example:**
-
-```clojure
-(deftask package []
-  (comp
-    (download :url "https://github.com/facebook/react/releases/download/v0.12.2/react-0.12.2.zip"
-              :checksum "6a242238790b21729a88c26145eca6b9"
-              :unzip true)
-    (sift :move {#"^react-.*/build/react.js" "cljsjs/development/react.inc.js"
-                 #"^react-.*/build/react.min.js" "cljsjs/production/react.min.inc.js"})
-    (sift :include #{#"^cljsjs"})
-    (deps-cljs :name "cljsjs.react")))
-
-;; This would then be used like this:
-;; boot package build-jar
-```
-
 # License
 
 Copyright © 2014 Martin Klepsch and Juho Teperi
