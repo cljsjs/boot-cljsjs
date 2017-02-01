@@ -27,23 +27,30 @@
         (throw e)))))
 
 (defn unpackage-stream [is & [{:keys [format]}]]
-  (cond-> (ArchiveStreamFactory.)
-    format       (.createArchiveInputStream format is)
-    (not format) (.createArchiveInputStream is)))
+  (if (.markSupported is)
+    (cond-> (ArchiveStreamFactory.)
+      format       (.createArchiveInputStream format is)
+      (not format) (.createArchiveInputStream is))
+    is))
 
 (defn decompress-file [in out-dir & [{:keys [compression-format archive-format]}]]
   (with-open [is (-> (io/input-stream in)
                      (try-decompress-stream {:format compression-format})
                      (unpackage-stream {:format archive-format}))]
-    (let [count (loop [i 0
-                       entry (.getNextEntry is)]
-                  (if entry
-                    (if-not (.isDirectory entry)
-                      (let [target (io/file out-dir (.getName entry))]
-                        (io/make-parents target)
-                        ; After .getNextEntry the stream points to the specific archive entry
-                        (io/copy is target)
-                        (recur (inc i) (.getNextEntry is)))
-                      (recur i (.getNextEntry is)))
-                    i))]
-      (util/info (format "Extracted %d files\n" count)))))
+    (if (.markSupported is)
+      (let [count (loop [i 0
+                         entry (.getNextEntry is)]
+                    (if entry
+                      (if-not (.isDirectory entry)
+                        (let [target (io/file out-dir (.getName entry))]
+                          (io/make-parents target)
+                          ;; After .getNextEntry the stream points to the specific archive entry
+                          (io/copy is target)
+                          (recur (inc i) (.getNextEntry is)))
+                        (recur i (.getNextEntry is)))
+                      i))]
+        (util/info (format "Extracted %d files\n" count)))
+      (let [target (io/file out-dir (.getUncompressedFilename @file-name-util (.getName (io/file in))))]
+        (io/make-parents target)
+        (io/copy is target)
+        (util/info (format "Extracted 1 file\n"))))))
