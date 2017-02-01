@@ -1,5 +1,8 @@
-## Unreleased
+## 0.6.0 (1.2.2017)
 
+**[compare](https://github.com/Deraen/less4clj/compare/0.5.2...master)**
+
+- Support single file archives in `decompress` ([#44](https://github.com/cljsjs/boot-cljsjs/issues/44))
 - Remove `cljsjs.boot-cljsjs` namespace, including `from-cljsjs`, `from-jars` and
 `from-webjars` tasks. Alternatives:
     - [Using non JS Clsjs assets](https://github.com/cljsjs/packages/wiki/Non-JS-Assets)
