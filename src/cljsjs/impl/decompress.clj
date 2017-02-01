@@ -1,8 +1,17 @@
 (ns cljsjs.impl.decompress
   (:require [boot.util           :as util]
             [clojure.java.io     :as io])
-  (:import [org.apache.commons.compress.compressors CompressorStreamFactory]
+  (:import [org.apache.commons.compress.compressors CompressorStreamFactory FileNameUtil ]
            [org.apache.commons.compress.archivers ArchiveStreamFactory]))
+
+(def file-name-util (delay (FileNameUtil. {".gz" ""
+                                           ".xz" ""
+                                           ".bzip2" ""
+                                           ".bz2" ""
+                                           ".tgz" ".tar"
+                                           ".tbz2" ".tar"
+                                           ".tlz" ".tar"}
+                                          "")))
 
 (defn not-decompressable? [e]
   (re-find #"No Compressor found for the stream signature\." (.getMessage e)))
@@ -10,7 +19,7 @@
 (defn try-decompress-stream [is & [{:keys [format]}]]
   (try
     (cond-> (CompressorStreamFactory.)
-      format       (.createCompressorInputStream format is)
+      format       (.createCompressorInputStream format is true) ;; for concatenated bzip2, gzip and xz
       (not format) (.createCompressorInputStream is))
     (catch Exception e
       (if (not-decompressable? e)
