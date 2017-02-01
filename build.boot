@@ -4,7 +4,7 @@
                   [clj-http "2.2.0" :scope "test"]
                   [asset-minifier "0.1.7" :scope "test"]])
 
-(def +version+ "0.6.0-SNAPSHOT")
+(def +version+ "0.6.0")
 
 (task-options!
   pom  {:project     'cljsjs/boot-cljsjs
