@@ -102,7 +102,10 @@
   :requires can be specified through the :requires option.
   :provides is determined by what's passed to :name"
   [n name NAME str "Name for provided foreign lib"
+
+   p provides PROV [str] "Modules provided by this lib"
    R requires REQ [str] "Modules required by this lib"
+   g global-exports GLOBAL {sym sym} ""
    E no-externs bool "No externs are provided"]
   (let [tmp              (c/tmp-dir!)
         deps-file        (io/file tmp "deps.cljs")
@@ -112,18 +115,25 @@
             regular  (first (c/by-ext [".inc.js"] (c/not-by-ext [".min.inc.js"] in-files)))
             minified (first (c/by-ext [".min.inc.js"] in-files))
             externs  (c/by-ext [".ext.js"] in-files)]
+
+        (assert (or (seq provides) name) "Either list of provides or a name has to be provided.")
         (assert regular "No .inc.js file found!")
+
         (if-not no-externs
           (assert (first externs) "No .ext.js file(s) found!"))
+
         (util/info "Writing deps.cljs\n")
 
         (let [base-lib {:file (c/tmp-path regular)
-                        :provides [name]}
+                        :provides (or provides [name])}
               lib      (cond-> base-lib
-                         requires (merge base-lib {:requires requires})
-                         minified (merge base-lib {:file-min (c/tmp-path minified)}))]
-          (write-deps-cljs! (merge {:foreign-libs [lib]}
-                                   (if-not (empty? externs) {:externs (mapv c/tmp-path externs)})))
+                         requires (assoc :requires requires)
+                         minified (assoc :file-min (c/tmp-path minified))
+                         global-exports (assoc :global-exports global-exports))]
+          (write-deps-cljs!
+            (merge {:foreign-libs [lib]}
+                   (if (seq externs)
+                     {:externs (mapv c/tmp-path externs)})))
           (-> fileset
               (c/add-resource tmp)
               c/commit!))))))
