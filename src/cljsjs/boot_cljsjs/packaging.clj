@@ -52,7 +52,7 @@
               (io/copy is target))))
         (-> fileset (c/rm archives) (c/add-resource tmp) c/commit!)))))
 
-(def decompress-deps '[[org.apache.commons/commons-compress "1.9"]])
+(def decompress-deps '[[org.apache.commons/commons-compress "1.14"]])
 
 (c/deftask decompress
   [p paths PATH #{str} "Paths in fileset to untar"
@@ -69,7 +69,7 @@
                                                      :archive-format ~archive-format})))
         (-> fileset (c/rm archives) (c/add-resource tmp) c/commit!)))))
 
-(def download-deps '[[clj-http "2.2.0"]])
+(def download-deps '[[clj-http "3.7.0"]])
 
 (c/deftask download
   [u url      URL      str     "The url to download"
@@ -139,7 +139,7 @@
               c/commit!))))))
 
 (defn minifier-pod []
-  (pod/make-pod (assoc-in (c/get-env) [:dependencies] '[[asset-minifier "0.1.7"]])))
+  (pod/make-pod (assoc-in (c/get-env) [:dependencies] '[[asset-minifier "0.2.4"]])))
 
 (c/deftask minify
   "Minifies .js and .css files based on their file extension
