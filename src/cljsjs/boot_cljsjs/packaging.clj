@@ -3,6 +3,7 @@
   (:require [boot.core           :as c]
             [boot.pod            :as pod]
             [boot.util           :as util]
+            [boot.task.built-in  :as tasks]
             [clojure.java.io     :as io]
             [clojure.pprint      :as pprint]
             [clojure.string      :as string])
@@ -78,7 +79,8 @@
    x unzip             bool    "Unzip the downloaded file"
    X decompress        bool    "Decompress the archive (tar, zip, gzip, bzip...)"
    f compression-format FORMAT str "Manually set format for decompression (e.g. lzma can't be autodetected)."
-   F archive-format     FORMAT str "Manually set format for archive"]
+   F archive-format     FORMAT str "Manually set format for archive"
+   t target   PATH     str     "Move the downloaded file to this path"]
   (let [tmp (c/tmp-dir!)
         pod (future (pod/make-pod (-> (c/get-env) (update-in [:dependencies] into download-deps))))
         fname (or name (last (string/split url #"/")))]
@@ -90,7 +92,8 @@
         (-> fileset (c/add-resource tmp) c/commit!))
       checksum (comp (cljsjs.boot-cljsjs.packaging/checksum :sum {fname checksum}))
       unzip    (comp (cljsjs.boot-cljsjs.packaging/unzip :paths #{fname}))
-      decompress (comp (cljsjs.boot-cljsjs.packaging/decompress :paths #{fname} :compression-format compression-format :archive-format archive-format)))))
+      decompress (comp (cljsjs.boot-cljsjs.packaging/decompress :paths #{fname} :compression-format compression-format :archive-format archive-format))
+      target (comp (tasks/sift :move {(re-pattern fname) target})))))
 
 (c/deftask deps-cljs
   "Creates a deps.cljs file based on information in the fileset and
