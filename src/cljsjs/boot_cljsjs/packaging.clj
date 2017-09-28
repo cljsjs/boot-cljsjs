@@ -111,8 +111,7 @@
    g global-exports GLOBAL {sym sym} ""
    E no-externs bool "No externs are provided"]
   (let [tmp              (c/tmp-dir!)
-        deps-file        (io/file tmp "deps.cljs")
-        write-deps-cljs! #(spit deps-file (pr-str %))]
+        deps-file        (io/file tmp "deps.cljs")]
     (c/with-pre-wrap fileset
       (let [in-files (c/input-files fileset)
             regular  (first (c/by-ext [".inc.js"] (c/not-by-ext [".min.inc.js"] in-files)))
@@ -135,10 +134,10 @@
                          global-exports (assoc :global-exports global-exports))
               data     (merge {:foreign-libs [lib]}
                               (if (seq externs)
-                                {:externs (mapv c/tmp-path externs)}))]
-          (println "deps.cljs:")
-          (pprint/pprint data)
-          (write-deps-cljs! data)
+                                {:externs (mapv c/tmp-path externs)}))
+              s (with-out-str (pprint/pprint data))]
+          (println "deps.cljs:\n" s)
+          (spit deps-file s)
           (-> fileset
               (c/add-resource tmp)
               c/commit!))))))
