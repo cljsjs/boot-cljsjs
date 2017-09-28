@@ -2,7 +2,7 @@
   (:require [boot.util           :as util]
             [clojure.java.io     :as io])
   (:import [org.apache.commons.compress.compressors CompressorStreamFactory FileNameUtil ]
-           [org.apache.commons.compress.archivers ArchiveStreamFactory]))
+           [org.apache.commons.compress.archivers ArchiveStreamFactory ArchiveInputStream]))
 
 (def file-name-util (delay (FileNameUtil. {".gz" ""
                                            ".xz" ""
@@ -26,18 +26,24 @@
         is
         (throw e)))))
 
+(defn mark-not-supported? [e]
+  (re-find #"Mark is not supported\." (.getMessage e)))
+
 (defn unpackage-stream [is & [{:keys [format]}]]
-  (if (.markSupported is)
+  (try
     (cond-> (ArchiveStreamFactory.)
       format       (.createArchiveInputStream format is)
       (not format) (.createArchiveInputStream is))
-    is))
+    (catch Exception e
+      (if (mark-not-supported? e)
+        is
+        (throw e)))))
 
 (defn decompress-file [in out-dir & [{:keys [compression-format archive-format]}]]
   (with-open [is (-> (io/input-stream in)
                      (try-decompress-stream {:format compression-format})
                      (unpackage-stream {:format archive-format}))]
-    (if (.markSupported is)
+    (if (instance? ArchiveInputStream is)
       (let [count (loop [i 0
                          entry (.getNextEntry is)]
                     (if entry

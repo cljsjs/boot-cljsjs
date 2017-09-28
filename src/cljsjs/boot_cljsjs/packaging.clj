@@ -31,7 +31,7 @@
            (fn [x]
              (when-not x
                (util/warn (str "Download :checksum option is deprecated. Instead use validate-checksums task as the "
-                               "last task in the package pipeline.")))
+                               "last task in the package pipeline.\n")))
              true))
     (doseq [f (c/ls fileset)
             :let [path (c/tmp-path f)]]
