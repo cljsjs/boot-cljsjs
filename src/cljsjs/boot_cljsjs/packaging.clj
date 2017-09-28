@@ -136,7 +136,7 @@
                               (if (seq externs)
                                 {:externs (mapv c/tmp-path externs)}))
               s (with-out-str (pprint/pprint data))]
-          (println "deps.cljs:\n" s)
+          (println (str "deps.cljs:\n" s))
           (spit deps-file s)
           (-> fileset
               (c/add-resource tmp)
