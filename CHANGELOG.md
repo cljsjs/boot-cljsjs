@@ -1,3 +1,7 @@
+## 0.8.1 (2017-09-28)
+
+- Fix `decompress` with `tgz` files
+
 ## 0.8.0 (2017-09-28)
 
 - Add new `validate-checksums` task
