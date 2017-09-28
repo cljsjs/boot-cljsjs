@@ -132,11 +132,13 @@
               lib      (cond-> base-lib
                          requires (assoc :requires requires)
                          minified (assoc :file-min (c/tmp-path minified))
-                         global-exports (assoc :global-exports global-exports))]
-          (write-deps-cljs!
-            (merge {:foreign-libs [lib]}
-                   (if (seq externs)
-                     {:externs (mapv c/tmp-path externs)})))
+                         global-exports (assoc :global-exports global-exports))
+              data     (merge {:foreign-libs [lib]}
+                              (if (seq externs)
+                                {:externs (mapv c/tmp-path externs)}))]
+          (println "deps.cljs:")
+          (pprint/pprint data)
+          (write-deps-cljs! data)
           (-> fileset
               (c/add-resource tmp)
               c/commit!))))))

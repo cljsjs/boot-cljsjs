@@ -1,3 +1,15 @@
+## 0.7.3 (2017-09-28)
+
+- Pretty print deps.cljs
+
+## 0.7.2 (2017-09-14)
+
+- Add `:target` option to download task
+
+## 0.7.1 (2017-09-06)
+
+- Fix
+
 ## 0.7.0 (2017-09-03)
 
 **[compare](https://github.com/cljsjs/boot-cljsjs/compare/0.6.0...0.7.0)**
