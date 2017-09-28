@@ -4,6 +4,7 @@
             [boot.pod            :as pod]
             [boot.util           :as util]
             [boot.task.built-in  :as tasks]
+            [clojure.edn :as edn]
             [clojure.java.io     :as io]
             [clojure.pprint      :as pprint]
             [clojure.string      :as string])
@@ -21,9 +22,17 @@
       (.digest)
       (DatatypeConverter/printHexBinary)))
 
+(def checksum-deprecated-message (atom false))
+
 (c/deftask checksum
   [s sum FILENAME=CHECKSUM {str str} "Check the md5 checksum of file against md5"]
   (c/with-pre-wrap fileset
+    (swap! checksum-deprecated-message
+           (fn [x]
+             (when-not x
+               (util/warn (str "Download :checksum option is deprecated. Instead use validate-checksums task as the "
+                               "last task in the package pipeline.")))
+             true))
     (doseq [f (c/ls fileset)
             :let [path (c/tmp-path f)]]
       (when-let [checksum (some-> (get sum path) string/upper-case)]
@@ -136,7 +145,7 @@
                               (if (seq externs)
                                 {:externs (mapv c/tmp-path externs)}))
               s (with-out-str (pprint/pprint data))]
-          (println (str "deps.cljs:\n" s))
+          (util/info (str "deps.cljs:\n" s))
           (spit deps-file s)
           (-> fileset
               (c/add-resource tmp)
@@ -198,3 +207,47 @@
         (-> fileset
             (c/add-resource tmp)
             c/commit!)))))
+
+(c/deftask validate-checksums
+  "Checks files (by default Cljsjs JS files)
+  against `boot-cljsjs-checksums.edn` files in
+  working directory, if it exists. If there are differences,
+  asks the user to validate changes, or in CI, throw error.
+  New checksum are written to the file.
+
+  Default pattern to check is \"^cljsjs/.*/(common|production|dev)/.*.js$\".
+
+  The checksum file should be commited to git."
+  [_ patterns PATTERN [regex] "File patterns to check the checksums for"]
+  (let [patterns (if (seq patterns)
+                  patterns
+                  [#"^cljsjs/.*/(common|production|dev)/.*\.js$"])]
+    (fn [next-handler]
+      (fn [fileset]
+        (let [files (->> fileset
+                         c/input-files
+                         (c/by-re patterns))
+              checksums-file (io/file "boot-cljsjs-checksums.edn")
+              current-checksums (if (.exists checksums-file)
+                                  (edn/read-string (slurp checksums-file)))
+              new-checksums (reduce (fn [m f]
+                                      (let [checksum (with-open [is  (io/input-stream (c/tmp-file f))
+                                                                 dis (DigestInputStream. is (MessageDigest/getInstance "MD5"))]
+                                                       (realize-input-stream! dis)
+                                                       (message-digest->str (.getMessageDigest dis)))]
+                                        (assoc m (c/tmp-path f) checksum)))
+                                    {}
+                                    files)
+              ci? (= "true" (System/getenv "CIRCLECI"))]
+          (if (and current-checksums (not= current-checksums new-checksums))
+            (do
+              (util/info (str "\nCurrent checksums:\n" (with-out-str (pprint/pprint current-checksums) "\n")))
+              (util/info (str "\nNew checksums:\n" (with-out-str (pprint/pprint new-checksums)) "\n"))
+              (if-not ci?
+                (util/warn "Checksums have changed, update? [yn] "))
+              (let [answer (and (not ci?) (.readLine (System/console)))]
+                (if (not= "y" answer)
+                  (throw (ex-info "Checksums do not match" {})))))
+            (util/info "Checksums match\n"))
+          (spit checksums-file (with-out-str (pprint/pprint new-checksums)))
+          (next-handler fileset))))))

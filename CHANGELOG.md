@@ -1,3 +1,8 @@
+## 0.8.0 (2017-09-28)
+
+- Add new `validate-checksums` task
+- Deprecate `package` `:checksum` option
+
 ## 0.7.3 (2017-09-28)
 
 - Pretty print deps.cljs
