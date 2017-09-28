@@ -1,10 +1,7 @@
-## 0.7.4 (2017-09-28)
-
-- Pretty print deps.cljs to the file
-
 ## 0.7.3 (2017-09-28)
 
-- Pretty print deps.cljs to console
+- Pretty print deps.cljs
+- Print deps.cljs content to console
 
 ## 0.7.2 (2017-09-14)
 
