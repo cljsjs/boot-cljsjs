@@ -208,6 +208,15 @@
             (c/add-resource tmp)
             c/commit!)))))
 
+(def checksum-re #"^cljsjs/(.*/)?(common|production|dev)/.*\.inc\.js$")
+
+(comment
+  (re-matches checksum-re "cljsjs/foo/common/foo.inc.js")
+  (re-matches checksum-re "cljsjs/foo/common/modules/foo.inc.js")
+  (re-matches checksum-re "cljsjs/foo/common/foo.ext.js")
+  (re-matches checksum-re "cljsjs/common/foo.inc.js")
+  )
+
 (c/deftask validate-checksums
   "Checks files (by default Cljsjs JS files)
   against `boot-cljsjs-checksums.edn` files in
@@ -221,7 +230,7 @@
   [_ patterns PATTERN [regex] "File patterns to check the checksums for"]
   (let [patterns (if (seq patterns)
                   patterns
-                  [#"^cljsjs/.*/(common|production|dev)/.*\.js$"])]
+                  [checksum-re])]
     (fn [next-handler]
       (fn [fileset]
         (let [files (->> fileset
