@@ -1,3 +1,8 @@
+## 0.9.0-SNAPSHOT
+
+- Add `validate-libs` task which runs the foreign-libs and externs through
+ClojureScript and Closure compiler, to ensure they are correct
+
 ## 0.8.2 (2017-11-09)
 
 - Improve `validate-checksum` default patterns, and sort

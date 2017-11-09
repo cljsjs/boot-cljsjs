@@ -2,3 +2,4 @@
 target
 .nrepl-*
 gpg.edn
+out/

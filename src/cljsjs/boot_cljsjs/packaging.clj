@@ -262,3 +262,38 @@
             (util/warn "Checksum file (boot-cljsjs-checksums.edn) updated, please commit this file to Git.\n"))
           (spit checksums-file (with-out-str (pprint/pprint new-checksums)))
           (next-handler fileset))))))
+
+(defn cljs-pod []
+  (pod/make-pod (-> (c/get-env)
+                    (update-in [:dependencies] into '[[org.clojure/clojurescript "1.9.946"]])
+                    (assoc :resource-paths #{}
+                           :directories #{}))))
+
+(c/deftask validate-libs
+  []
+  (let [pod (cljs-pod)]
+    (fn [next-handler]
+      (fn [fileset]
+        (util/info "Running externs and foreign-libs through Closure to validate them...\n")
+
+        ;; React and other multi package builds probably have conflicting deps.cljs files,
+        ;; conflicts can be avoided by building classpath manually, no directories,
+        ;; just the built jars in addition to dependencies to the classpath.
+        (let [jars (->> fileset
+                        (c/output-files)
+                        (c/by-ext [".jar"]))]
+          (assert (seq jars) "Validate-libs needs to be run after the jar has been built.")
+          (doseq [jar jars]
+            (pod/with-call-in pod
+              (boot.pod/add-classpath ~(.getPath (c/tmp-file jar))))))
+
+        (pod/with-call-in pod
+          (cljsjs.impl.closure/validate-externs!))
+
+        (next-handler fileset)))))
+
+(c/deftask validate
+  []
+  (comp
+    (validate-libs)
+    (validate-checksums)))
