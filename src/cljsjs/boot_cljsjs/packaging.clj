@@ -258,6 +258,7 @@
                 (if (not= "y" answer)
                   (throw (ex-info "Checksums do not match" {})))))
             (util/info "Checksums match\n"))
+          (if (not= current-checksums new-checksums)
+            (util/warn "Checksum file (boot-cljsjs-checksums.edn) updated, please commit this file to Git.\n"))
           (spit checksums-file (with-out-str (pprint/pprint new-checksums)))
-          (util/info "Checksum file (boot-cljsjs-checksums.edn) updated, please commit this file to Git.\n")
           (next-handler fileset))))))
