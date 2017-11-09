@@ -1,3 +1,8 @@
+## 0.8.2 (2017-11-09)
+
+- Improve `validate-checksum` default patterns, and sort
+checksum map to keep the content deterministic
+
 ## 0.8.1 (2017-09-28)
 
 - Fix `decompress` with `tgz` files
