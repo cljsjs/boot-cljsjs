@@ -245,7 +245,7 @@
                                                        (realize-input-stream! dis)
                                                        (message-digest->str (.getMessageDigest dis)))]
                                         (assoc m (c/tmp-path f) checksum)))
-                                    {}
+                                    (sorted-map)
                                     files)
               ci? (= "true" (System/getenv "CIRCLECI"))]
           (if (and current-checksums (not= current-checksums new-checksums))
