@@ -208,7 +208,7 @@
             (c/add-resource tmp)
             c/commit!)))))
 
-(def checksum-re #"^cljsjs/(.*/)?(common|production|dev)/.*\.inc\.js$")
+(def checksum-re #"^cljsjs/.*\.inc\.js$")
 
 (comment
   (re-matches checksum-re "cljsjs/foo/common/foo.inc.js")
@@ -259,7 +259,7 @@
                   (throw (ex-info "Checksums do not match" {})))))
             (util/info "Checksums match\n"))
           (if (not= current-checksums new-checksums)
-            (util/warn "Checksum file (boot-cljsjs-checksums.edn) updated, please commit this file to Git.\n"))
+            (util/warn "Checksum file boot-cljsjs-checksums.edn updated, please commit this file to Git.\n"))
           (spit checksums-file (with-out-str (pprint/pprint new-checksums)))
           (next-handler fileset))))))
 
