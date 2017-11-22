@@ -1,7 +1,8 @@
-## 0.9.0-SNAPSHOT
+## 0.9.0 (2017-11-22)
 
 - Add `validate-libs` task which runs the foreign-libs and externs through
 ClojureScript and Closure compiler, to ensure they are correct
+- Improve `validate-checksum` default patterns
 
 ## 0.8.2 (2017-11-09)
 
