@@ -349,3 +349,36 @@
   (comp
     (validate-libs)
     (validate-checksums)))
+
+;; TODO: Should eventually be included in boot.core
+(defn with-files
+  "Runs middleware with filtered fileset and merges the result back into complete fileset."
+  [p middleware]
+  (fn [next-handler]
+    (fn [fileset]
+      (let [merge-fileset-handler (fn [fileset']
+                                    (next-handler (c/commit! (assoc fileset :tree (merge (:tree fileset) (:tree fileset'))))))
+            handler (middleware merge-fileset-handler)
+            fileset (assoc fileset :tree (reduce-kv
+                                          (fn [tree path x]
+                                            (if (p x)
+                                              (assoc tree path x)
+                                              tree))
+                                          (empty (:tree fileset))
+                                          (:tree fileset)))]
+        (handler fileset)))))
+
+(c/deftask run-commands
+  "Runs given commands with fileset checked out as working directory, and commits the working directory to fileset
+  after running commands."
+  [c commands COMMAND edn "Commands"]
+  (let [tmp (c/tmp-dir!)]
+    (c/with-pre-wrap fileset
+      (doseq [f (->> fileset c/input-files)
+              :let [target  (io/file tmp (c/tmp-path f))]]
+        (io/make-parents target)
+        (io/copy (c/tmp-file f) target))
+      (binding [util/*sh-dir* (str tmp)]
+        (doseq [command commands]
+          ((apply util/sh command))))
+      (-> fileset (c/add-resource tmp) c/commit!))))
