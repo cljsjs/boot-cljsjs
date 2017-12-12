@@ -276,7 +276,7 @@
   asks the user to validate changes, or in CI, throw error.
   New checksum are written to the file.
 
-  Default pattern to check is \"^cljsjs/.*/(common|production|dev)/.*.js$\".
+  Default pattern to check is \"^cljsjs/.*\.inc\.js$\".
 
   The checksum file should be commited to git."
   [_ patterns PATTERN [regex] "File patterns to check the checksums for"]
