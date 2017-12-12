@@ -1,3 +1,11 @@
+## 0.10.0 (2017-12-12)
+
+- New `deps-cljs` options `foreign-libs` and `externs` allow creating deps.cljs
+with multiple entries. Regex and string formatting allows dynamically matching
+and creating entries. Check cljsjs/highlight for example.
+- Added `with-files` utility
+- Added `run-commands` task, can be used to run npm, Node and other tools
+
 ## 0.9.0 (2017-11-22)
 
 - Add `validate-libs` task which runs the foreign-libs and externs through

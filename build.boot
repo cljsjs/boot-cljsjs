@@ -7,7 +7,7 @@
                   ;; Conflicts with cljs
                   #_[asset-minifier "0.2.4" :scope "test" :exclusions []]])
 
-(def +version+ "0.10.0-SNAPSHOT")
+(def +version+ "0.10.0")
 
 (task-options!
   pom  {:project     'cljsjs/boot-cljsjs
