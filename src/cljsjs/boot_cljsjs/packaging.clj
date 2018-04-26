@@ -131,9 +131,26 @@
                (apply format p matches))
              provides)))
 
+(defn- update-global-exports [global-exports matches]
+  (into (empty global-exports)
+        (map (fn [[k v]]
+               (let [k2 (apply format (name k) matches)
+                     k2 (if (symbol? k)
+                          (symbol k2)
+                          k2)
+                     v2 (apply format (name v) matches)
+                     v2 (if (symbol? v)
+                          (symbol v2)
+                          v2)]
+                 [k2 v2]))
+             global-exports)))
+
 (comment
   (update-provides ["cljsjs.hello.%s"] ["foo"])
-  (update-provides ["%s" "cljsjs.hello.%2$s"] ["foo" "bar"]) )
+  (update-provides ["%s" "cljsjs.hello.%2$s"] ["foo" "bar"])
+  ;; Keep the type
+  ;; Strings needed for cases with multiple /
+  (update-global-exports {"hljs/languages/%1$s" 'hljs.%1$s} ["fi"]))
 
 (defn- build-deps-cljs [in-files foreign-libs externs]
   (let [foreign-libs (mapcat (fn [{:keys [file file-min] :as lib}]
@@ -148,6 +165,7 @@
                                                               (re-find file-min (c/tmp-path matched-file-min)))]
                                           (cond-> lib
                                             (seq matches) (update :provides update-provides matches)
+                                            (seq matches) (update :global-exports update-global-exports matches)
                                             matched-file (assoc :file (c/tmp-path matched-file))
                                             matched-file-min (assoc :file-min (c/tmp-path matched-file-min)))))
                                       (if file files (repeat nil))
@@ -276,7 +294,7 @@
   asks the user to validate changes, or in CI, throw error.
   New checksum are written to the file.
 
-  Default pattern to check is \"^cljsjs/.*\.inc\.js$\".
+  Default pattern to check is \"^cljsjs/.*\\.inc\\.js$\".
 
   The checksum file should be commited to git."
   [_ patterns PATTERN [regex] "File patterns to check the checksums for"]
