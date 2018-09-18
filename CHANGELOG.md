@@ -1,3 +1,8 @@
+## 0.10.1 (2018-09-18)
+
+- Try to account Windows file paths in `validate-checksum` default regex
+- Mention Windows file paths in docstrings and regex parameters
+
 ## 0.10.0 (2017-12-12)
 
 - New `deps-cljs` options `foreign-libs` and `externs` allow creating deps.cljs
