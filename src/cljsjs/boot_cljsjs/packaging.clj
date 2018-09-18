@@ -187,6 +187,9 @@
   All files matched by :externs patterns are included.
   Check e.g. cljsjs/highlight for example.
 
+  Note that you should take system directory separator char into account in
+  `foreign-libs` `:file` and `:file-min` regex, i.e. use `[/\\]` instead of just `/`.
+
   Legacy version: single foreign lib can be declared using given name,
   provides, requires, global-exports and no-externs options.
   The first .inc.js file is passed as :file, similarily .min.inc.js
@@ -227,6 +230,9 @@
 (c/deftask minify
   "Minifies .js and .css files based on their file extension
 
+   Note that you should take system directory separator char into account in
+  `in` regex, i.e. use `[/\\]` instead of just `/`.
+
    NOTE: potentially slow when called with watch or multiple times"
   [i in  INPUT  str "Path to file to be compressed"
    o out OUTPUT str "Path to where compressed file should be saved"
@@ -259,7 +265,10 @@
             c/commit!)))))
 
 (c/deftask replace-content
-  "Replaces portion of a file matching some pattern with some value."
+  "Replaces portion of a file matching some pattern with some value.
+
+   Note that you should take system directory separator char into account in
+  `in` regex, i.e. use `[/\\]` instead of just `/`."
   [i in INPUT str "Path to file to be modified"
    m match MATCH regex "Pattern to match"
    v value VALUE str "Value to replace with"
@@ -278,13 +287,14 @@
             (c/add-resource tmp)
             c/commit!)))))
 
-(def checksum-re #"^cljsjs/.*\.inc\.js$")
+(def checksum-re #"^cljsjs[/\\].*\.inc\.js$")
 
 (comment
   (re-matches checksum-re "cljsjs/foo/common/foo.inc.js")
   (re-matches checksum-re "cljsjs/foo/common/modules/foo.inc.js")
   (re-matches checksum-re "cljsjs/foo/common/foo.ext.js")
   (re-matches checksum-re "cljsjs/common/foo.inc.js")
+  (re-matches checksum-re "cljsjs\\common\\foo.inc.js")
   )
 
 (c/deftask validate-checksums
@@ -294,7 +304,10 @@
   asks the user to validate changes, or in CI, throw error.
   New checksum are written to the file.
 
-  Default pattern to check is \"^cljsjs/.*\\.inc\\.js$\".
+  Default pattern to check is \"^cljsjs[/\\].*\\.inc\\.js$\".
+
+  Note that you should take system directory separator char into account in
+  `patterns` regex, i.e. use `[/\\]` instead of just `/`.
 
   The checksum file should be commited to git."
   [_ patterns PATTERN [regex] "File patterns to check the checksums for"]
