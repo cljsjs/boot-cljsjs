@@ -225,7 +225,7 @@
             c/commit!)))))
 
 (defn minifier-pod []
-  (pod/make-pod (assoc-in (c/get-env) [:dependencies] '[[asset-minifier "0.2.4"]])))
+  (pod/make-pod (assoc-in (c/get-env) [:dependencies] '[[asset-minifier "0.2.6"]])))
 
 (c/deftask minify
   "Minifies .js and .css files based on their file extension
