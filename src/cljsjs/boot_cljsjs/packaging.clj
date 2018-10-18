@@ -236,7 +236,8 @@
    NOTE: potentially slow when called with watch or multiple times"
   [i in  INPUT  str "Path to file to be compressed"
    o out OUTPUT str "Path to where compressed file should be saved"
-   l lang LANGUAGE_IN kw "Language of the input javascript file. Default value is ecmascript6 in and ecmascript5 out."]
+   _ lang-in LANGUAGE_IN kw "Language of the input javascript file. Default value is ecmascript6"
+   _ lang-out LANGUAGE_OUT kw "Language of the input javascript file. Default value is ecmascript5"]
   (assert in "Path to input file required")
   (assert out "Path to output file required")
   (let [tmp      (c/tmp-dir!)
@@ -254,8 +255,8 @@
           (pod/with-eval-in min-pod
             (require 'asset-minifier.core)
             (asset-minifier.core/minify-js ~in-path ~out-path (if ~lang
-                                                                {:language-in ~lang
-                                                                 :language-out ~lang}
+                                                                {:language-in ~lang-in
+                                                                 :language-out (or ~lang-out ~lang-in)}
                                                                 {})))
           (. in-path (endsWith "css"))
           (pod/with-eval-in min-pod
