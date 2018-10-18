@@ -254,7 +254,8 @@
           (pod/with-eval-in min-pod
             (require 'asset-minifier.core)
             (asset-minifier.core/minify-js ~in-path ~out-path (if ~lang
-                                                                {:language ~lang}
+                                                                {:language-in ~lang
+                                                                 :language-out ~lang}
                                                                 {})))
           (. in-path (endsWith "css"))
           (pod/with-eval-in min-pod
