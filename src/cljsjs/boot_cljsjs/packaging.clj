@@ -236,8 +236,8 @@
    NOTE: potentially slow when called with watch or multiple times"
   [i in  INPUT  str "Path to file to be compressed"
    o out OUTPUT str "Path to where compressed file should be saved"
-   _ lang-in LANGUAGE_IN kw "Language of the input javascript file. Default value is ecmascript6"
-   _ lang-out LANGUAGE_OUT kw "Language of the input javascript file. Default value is ecmascript5"]
+   l lang-in LANGUAGE_IN kw "Language of the input javascript file. Default value is ecmascript6"
+   L lang-out LANGUAGE_OUT kw "Language of the input javascript file. Default value is ecmascript5"]
   (assert in "Path to input file required")
   (assert out "Path to output file required")
   (let [tmp      (c/tmp-dir!)
