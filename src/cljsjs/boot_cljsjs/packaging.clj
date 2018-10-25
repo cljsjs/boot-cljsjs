@@ -256,17 +256,17 @@
       (let [in-files (c/input-files fileset)
             in-file  (c/tmp-file (first (c/by-re [(re-pattern in)] in-files)))
             in-path  (.getPath in-file)
-            out-path (.getPath out-file)]
+            out-path (.getPath out-file)
+            lang-out (or lang-out lang-in)]
         (util/info "Minifying %s\n" (.getName in-file))
         (io/make-parents out-file)
         (cond
           (. in-path (endsWith "js"))
           (pod/with-eval-in min-pod
             (require 'asset-minifier.core)
-            (asset-minifier.core/minify-js ~in-path ~out-path (if ~lang
-                                                                {:language-in ~lang-in
-                                                                 :language-out (or ~lang-out ~lang-in)}
-                                                                {})))
+            (asset-minifier.core/minify-js ~in-path ~out-path (cond-> {}
+                                                                ~lang-in (assoc :language-in ~lang-in)
+                                                                ~lang-out (assoc :language-out ~lang-out))))
           (. in-path (endsWith "css"))
           (pod/with-eval-in min-pod
             (require 'asset-minifier.core)
