@@ -132,25 +132,34 @@
              provides)))
 
 (defn- update-global-exports [global-exports matches]
-  (into (empty global-exports)
-        (map (fn [[k v]]
-               (let [k2 (apply format (name k) matches)
-                     k2 (if (symbol? k)
-                          (symbol k2)
-                          k2)
-                     v2 (apply format (name v) matches)
-                     v2 (if (symbol? v)
-                          (symbol v2)
-                          v2)]
-                 [k2 v2]))
-             global-exports)))
+  (letfn [(to-str [s]
+            (if (symbol? s)
+              (do
+                (when (namespace s)
+                  (throw (ex-info "Use string to define :global-exports values if you need keys or values with `/`."
+                                  {:value s})))
+                (name s))
+              s))]
+    (into (empty global-exports)
+      (map (fn [[k v]]
+             (let [k2 (apply format (to-str k) matches)
+                   k2 (if (symbol? k)
+                        (symbol k2)
+                        k2)
+                   v2 (apply format (to-str v) matches)
+                   v2 (if (symbol? v)
+                        (symbol v2)
+                        v2)]
+               [k2 v2]))
+           global-exports))))
 
 (comment
   (update-provides ["cljsjs.hello.%s"] ["foo"])
   (update-provides ["%s" "cljsjs.hello.%2$s"] ["foo" "bar"])
   ;; Keep the type
   ;; Strings needed for cases with multiple /
-  (update-global-exports {"hljs/languages/%1$s" 'hljs.%1$s} ["fi"]))
+  (update-global-exports {"hljs/languages/%1$s" 'hljs.%1$s} ["fi"])
+  (update-global-exports {'react-dom/server 'hljs.%1$s} ["fi"]))
 
 (defn- build-deps-cljs [in-files foreign-libs externs]
   (let [foreign-libs (mapcat (fn [{:keys [file file-min] :as lib}]

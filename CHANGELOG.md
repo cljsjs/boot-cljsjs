@@ -1,3 +1,8 @@
+## 0.10.2 (2018-10-26)
+
+- Force `:global-exports` keys and values as strings if they use `/`.
+- Update asset-minfier ([#54](https://github.com/cljsjs/boot-cljsjs/pull/54))
+
 ## 0.10.1 (2018-09-18)
 
 - Try to account Windows file paths in `validate-checksum` default regex
