@@ -1,6 +1,10 @@
+## 0.10.3 (2018-10-26)
+
+- Fix `:global-exports`
+
 ## 0.10.2 (2018-10-26)
 
-- Force `:global-exports` keys and values as strings if they use `/`.
+- ~~Force `:global-exports` keys and values as strings if they use `/`.~~
 - Update asset-minfier ([#54](https://github.com/cljsjs/boot-cljsjs/pull/54))
 
 ## 0.10.1 (2018-09-18)

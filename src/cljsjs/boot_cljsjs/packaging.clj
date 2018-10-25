@@ -132,25 +132,17 @@
              provides)))
 
 (defn- update-global-exports [global-exports matches]
-  (letfn [(to-str [s]
-            (if (symbol? s)
-              (do
-                (when (namespace s)
-                  (throw (ex-info "Use string to define :global-exports values if you need keys or values with `/`."
-                                  {:value s})))
-                (name s))
-              s))]
+  (letfn [(replace-matches [v matches]
+            (if (symbol? v)
+              (if (namespace v)
+                (symbol (apply format (namespace v) matches)
+                        (apply format (name v) matches))
+                (symbol (apply format (name v) matches)))
+              (apply format v matches)))]
     (into (empty global-exports)
       (map (fn [[k v]]
-             (let [k2 (apply format (to-str k) matches)
-                   k2 (if (symbol? k)
-                        (symbol k2)
-                        k2)
-                   v2 (apply format (to-str v) matches)
-                   v2 (if (symbol? v)
-                        (symbol v2)
-                        v2)]
-               [k2 v2]))
+             [(replace-matches k matches)
+              (replace-matches v matches)])
            global-exports))))
 
 (comment
@@ -159,7 +151,8 @@
   ;; Keep the type
   ;; Strings needed for cases with multiple /
   (update-global-exports {"hljs/languages/%1$s" 'hljs.%1$s} ["fi"])
-  (update-global-exports {'react-dom/server 'hljs.%1$s} ["fi"]))
+  ;; For symbols both namespace and name is formatted
+  (update-global-exports {'react-dom.%1$s/server.%1$s 'hljs.%1$s} ["fi"]))
 
 (defn- build-deps-cljs [in-files foreign-libs externs]
   (let [foreign-libs (mapcat (fn [{:keys [file file-min] :as lib}]
