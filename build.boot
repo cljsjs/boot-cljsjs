@@ -5,7 +5,7 @@
                   [org.clojure/clojurescript "1.9.946" :scope "test"]
                   [cljsjs/react-dom "16.1.0-0" :scope "test"]
                   ;; Conflicts with cljs
-                  #_[asset-minifier "0.2.4" :scope "test" :exclusions []]])
+                  #_[asset-minifier "0.2.6" :scope "test" :exclusions []]])
 
 (def +version+ "0.10.1")
 
