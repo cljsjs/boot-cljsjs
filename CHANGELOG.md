@@ -1,3 +1,7 @@
+## 0.10.4 (2019-08-08)
+
+- Drop Javax use for Java 10+ compatibility
+
 ## 0.10.3 (2018-10-26)
 
 - Fix `:global-exports`
