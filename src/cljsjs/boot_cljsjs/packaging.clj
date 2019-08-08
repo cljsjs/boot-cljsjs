@@ -18,8 +18,7 @@
 
 (defn hex-string [ba]
   (->> ba
-       (map (fn [byte]
-              (String/format "%02X" (into-array [byte]))))
+       (map (partial format "%02X"))
        (string/join "")))
 
 (defn- message-digest->str [^MessageDigest message-digest]
