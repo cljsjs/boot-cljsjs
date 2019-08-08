@@ -9,7 +9,6 @@
             [clojure.pprint      :as pprint]
             [clojure.string      :as string])
   (:import [java.security DigestInputStream MessageDigest]
-           [javax.xml.bind DatatypeConverter]
            [java.util.zip ZipFile]))
 
 (defn- realize-input-stream! [s]
@@ -17,10 +16,21 @@
     (if-not (neg? c)
       (recur (.read s)))))
 
+(defn hex-string [ba]
+  (->> ba
+       (map (fn [byte]
+              (String/format "%02X" (into-array [byte]))))
+       (string/join "")))
+
 (defn- message-digest->str [^MessageDigest message-digest]
   (-> message-digest
       (.digest)
-      (DatatypeConverter/printHexBinary)))
+      (hex-string)))
+
+(comment
+  (String/format "%02X" (into-array '(10)))
+  (DatatypeConverter/printHexBinary (byte-array '(1 1 1 50 255)))
+  (hex-string (byte-array '(1 1 1 50 255))))
 
 (def checksum-deprecated-message (atom false))
 
