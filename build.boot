@@ -1,5 +1,8 @@
 (set-env!
   :resource-paths #{"src"}
+  ;; Note: these deps are just for testing locally, running repl etc.
+  ;; All Boot task also declare their depdendencies in the cljsjs.boot-cljsjs.packaging
+  ;; namespace, so remember to update those also!
   :dependencies '[[org.apache.commons/commons-compress "1.14" :scope "test"]
                   [clj-http "3.7.0" :scope "test"]
                   [org.clojure/clojurescript "1.10.238" :scope "test"]

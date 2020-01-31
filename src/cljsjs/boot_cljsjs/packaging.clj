@@ -361,7 +361,7 @@
 
 (defn cljs-pod []
   (pod/make-pod (-> (c/get-env)
-                    (update-in [:dependencies] into '[[org.clojure/clojurescript "1.9.946"]])
+                    (update-in [:dependencies] into '[[org.clojure/clojurescript "1.10.238"]])
                     (assoc :resource-paths #{}
                            :directories #{}))))
 
