@@ -1,3 +1,8 @@
+## 0.10.5 (2020-01-31)
+
+- Update ClojureScript dependency for `validate-libs` task, should improve
+Java 11 compatibility
+
 ## 0.10.4 (2019-08-08)
 
 - Drop Javax use for Java 10+ compatibility
