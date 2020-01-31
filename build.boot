@@ -2,12 +2,12 @@
   :resource-paths #{"src"}
   :dependencies '[[org.apache.commons/commons-compress "1.14" :scope "test"]
                   [clj-http "3.7.0" :scope "test"]
-                  [org.clojure/clojurescript "1.9.946" :scope "test"]
+                  [org.clojure/clojurescript "1.10.238" :scope "test"]
                   [cljsjs/react-dom "16.1.0-0" :scope "test"]
                   ;; Conflicts with cljs
                   #_[asset-minifier "0.2.6" :scope "test" :exclusions []]])
 
-(def +version+ "0.10.4")
+(def +version+ "0.10.5")
 
 (task-options!
   pom  {:project     'cljsjs/boot-cljsjs
